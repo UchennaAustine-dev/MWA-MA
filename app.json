@@ -4,7 +4,7 @@
     "slug": "ManwhitAroes",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/Manwhit-Logo.png",
     "scheme": "manwhitaroes",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
