@@ -33,24 +33,72 @@ export default function GetStartedScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Animated Image Grid */}
+      {/* Animated Image Collage */}
       <Animatable.View
         animation="fadeInDown"
         duration={900}
         delay={100}
-        style={styles.imageGrid}
+        style={styles.imageCollage}
       >
-        {images.map((img, idx) => (
+        {/* Left Column */}
+        <View style={styles.leftColumn}>
           <Animatable.Image
-            key={idx}
-            source={img}
-            style={styles.gridImage}
+            source={images[0]} // arab-lady
+            style={styles.leftTopImage}
             animation="fadeInUp"
-            delay={200 + idx * 100}
+            delay={200}
             duration={700}
             useNativeDriver
           />
-        ))}
+          <Animatable.Image
+            source={images[1]} // green-suite-lady
+            style={styles.leftBottomImage}
+            animation="fadeInUp"
+            delay={400}
+            duration={700}
+            useNativeDriver
+          />
+        </View>
+
+        {/* Center Column */}
+        <View style={styles.centerColumn}>
+          <Animatable.Image
+            source={images[2]} // woman-smiling (top center)
+            style={styles.centerTopImage}
+            animation="fadeInUp"
+            delay={300}
+            duration={700}
+            useNativeDriver
+          />
+          <Animatable.Image
+            source={images[3]} // family-flying (bottom center)
+            style={styles.centerBottomImage}
+            animation="fadeInUp"
+            delay={500}
+            duration={700}
+            useNativeDriver
+          />
+        </View>
+
+        {/* Right Column */}
+        <View style={styles.rightColumn}>
+          <Animatable.Image
+            source={images[4]} // hotel
+            style={styles.rightTopImage}
+            animation="fadeInUp"
+            delay={400}
+            duration={700}
+            useNativeDriver
+          />
+          <Animatable.Image
+            source={images[5]} // people-walking
+            style={styles.rightBottomImage}
+            animation="fadeInUp"
+            delay={600}
+            duration={700}
+            useNativeDriver
+          />
+        </View>
       </Animatable.View>
 
       {/* Animated Pagination Indicator */}
@@ -102,7 +150,9 @@ export default function GetStartedScreen() {
   );
 }
 
-const IMAGE_SIZE = (width - 64) / 3;
+const CONTAINER_WIDTH = width - 64;
+const COLUMN_WIDTH = (CONTAINER_WIDTH - 16) / 3; // 3 columns with 8px gaps
+const GAP = 8;
 
 const styles = StyleSheet.create({
   container: {
@@ -114,19 +164,60 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
   },
-  imageGrid: {
+  imageCollage: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    width: width - 32,
-    justifyContent: "center",
+    width: CONTAINER_WIDTH,
+    justifyContent: "space-between",
     marginTop: 16,
     marginBottom: 24,
+    paddingHorizontal: 16,
   },
-  gridImage: {
-    width: IMAGE_SIZE,
-    height: IMAGE_SIZE * 1.25,
+  leftColumn: {
+    width: COLUMN_WIDTH,
+    gap: GAP,
+  },
+  centerColumn: {
+    width: COLUMN_WIDTH,
+    gap: GAP,
+  },
+  rightColumn: {
+    width: COLUMN_WIDTH,
+    gap: GAP,
+  },
+  leftTopImage: {
+    width: COLUMN_WIDTH,
+    height: COLUMN_WIDTH * 1.6, // Taller image
     borderRadius: 16,
-    margin: 8,
+    backgroundColor: "#eee",
+  },
+  leftBottomImage: {
+    width: COLUMN_WIDTH,
+    height: COLUMN_WIDTH * 1.2, // Medium height
+    borderRadius: 16,
+    backgroundColor: "#eee",
+  },
+  centerTopImage: {
+    width: COLUMN_WIDTH,
+    height: COLUMN_WIDTH * 1.8, // Very tall image
+    borderRadius: 16,
+    backgroundColor: "#eee",
+  },
+  centerBottomImage: {
+    width: COLUMN_WIDTH,
+    height: COLUMN_WIDTH * 1.0, // Square-ish
+    borderRadius: 16,
+    backgroundColor: "#eee",
+  },
+  rightTopImage: {
+    width: COLUMN_WIDTH,
+    height: COLUMN_WIDTH * 1.4, // Medium-tall
+    borderRadius: 16,
+    backgroundColor: "#eee",
+  },
+  rightBottomImage: {
+    width: COLUMN_WIDTH,
+    height: COLUMN_WIDTH * 1.4, // Medium-tall
+    borderRadius: 16,
     backgroundColor: "#eee",
   },
   pagination: {
@@ -154,6 +245,7 @@ const styles = StyleSheet.create({
     color: "#222",
     textAlign: "center",
     marginBottom: 12,
+    fontFamily: "RedHatDisplay-Bold",
   },
   subtitle: {
     fontSize: 15,

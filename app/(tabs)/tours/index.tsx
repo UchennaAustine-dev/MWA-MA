@@ -2,9 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useSelector } from "react-redux";
-import { RootState } from "../../redux/store";
+import { RootState } from "../../../redux/store";
 
-export default function HotelsScreen() {
+export default function ToursScreen() {
   const user: any = useSelector((state: RootState) => state.auth.user);
 
   const getGreeting = () => {
@@ -32,7 +32,7 @@ export default function HotelsScreen() {
         </View>
       </View>
       <Text style={{ fontFamily: "Inter", fontSize: 16 }}>
-        Explore Hotels...
+        Explore Tours...
       </Text>
     </View>
   );

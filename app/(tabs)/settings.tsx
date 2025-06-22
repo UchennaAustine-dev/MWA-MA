@@ -31,7 +31,9 @@ export default function SettingsScreen() {
           <Ionicons name="person-circle-outline" size={30} color="black" />
         </View>
       </View>
-      <Text style={{ fontFamily: "Inter", fontSize: 16 }}>Settings</Text>
+      <Text style={{ fontFamily: "RedHatDisplay-Regular", fontSize: 16 }}>
+        Account
+      </Text>
     </View>
   );
 }

@@ -148,13 +148,14 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   outer: {
     flex: 1,
-    backgroundColor: "#E5E5E5",
+    // backgroundColor: "#E5E5E5",
+    backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
   },
   container: {
     backgroundColor: "#fff",
-    borderRadius: 24,
+    // borderRadius: 24,
     paddingVertical: 32,
     paddingHorizontal: 20,
     width: "92%",
@@ -176,6 +177,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: "#111",
     textAlign: "center",
+    fontFamily: "RedHatDisplay-Bold",
   },
   subtitle: {
     fontSize: 15,
@@ -183,6 +185,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 24,
     lineHeight: 22,
+    fontFamily: "Inter",
   },
   input: {
     width: "100%",
@@ -191,6 +194,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 14,
     fontSize: 16,
+    fontFamily: "RedHatDisplay-Regular",
     marginBottom: 20,
     backgroundColor: "#fff",
   },
@@ -201,6 +205,7 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     marginRight: 2,
     fontWeight: "bold",
+    fontFamily: "Inter",
   },
   button: {
     width: "100%",
@@ -214,11 +219,13 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
+    fontFamily: "RedHatDisplay-Bold",
   },
   bottomText: {
     fontSize: 13,
     color: "#888",
     textAlign: "center",
+    fontFamily: "Inter",
   },
   link: {
     color: "#005ce6",
