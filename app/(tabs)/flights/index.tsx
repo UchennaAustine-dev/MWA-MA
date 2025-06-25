@@ -9,6 +9,7 @@ import {
   addToSearchHistory,
   setSelectedFlight,
 } from "@/redux/slices/globalSlice";
+import { setCurrency } from "@/redux/slices/toggleSlice";
 import { AppDispatch, RootState } from "@/redux/store";
 import {
   City,
@@ -18,6 +19,7 @@ import {
   TripType,
 } from "@/types/flight-types";
 import { Ionicons } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
@@ -336,13 +338,16 @@ export default function FlightSearchScreen() {
     }
 
     setLoadingFlightId(flight.id);
-
     console.log(`Flight`, flight);
 
     try {
       const pricingOffers: any = await fetchFlightPricing(flight);
 
-      if (!pricingOffers || pricingOffers.length === 0) {
+      if (
+        !pricingOffers ||
+        !pricingOffers.flightOffers ||
+        pricingOffers.flightOffers.length === 0
+      ) {
         Alert.alert(
           "Error",
           "No pricing information available for this flight."
@@ -350,8 +355,9 @@ export default function FlightSearchScreen() {
         return;
       }
 
-      const offer = pricingOffers?.flightOffers[0];
+      const offer = pricingOffers.flightOffers[0];
       console.log(`offer`, offer);
+
       const priceTotal = Number.parseFloat(offer.price.total);
 
       if (isNaN(priceTotal) || priceTotal <= 0) {
@@ -367,7 +373,9 @@ export default function FlightSearchScreen() {
       dispatch(addToCart(flight));
 
       Alert.alert("Success", `Flight booking initiated for ${flight.id}`);
-      // Navigate to booking details or traveler details screen
+
+      // Navigate to payment page
+      router.push("/traveler-details");
     } catch (error: any) {
       Alert.alert(
         "Error",
@@ -429,6 +437,47 @@ export default function FlightSearchScreen() {
             <Text style={styles.name}>{user?.firstName || "Guest"}</Text>
           </View>
           <View style={styles.headerActions}>
+            {/* Currency Picker */}
+            <View style={styles.currencyPickerContainer}>
+              <Picker
+                selectedValue={currency ? "NGN" : "USD"}
+                style={styles.picker}
+                onValueChange={(value) => {
+                  dispatch(setCurrency(value === "NGN"));
+                }}
+                mode="dropdown"
+              >
+                <Picker.Item label="Naira (₦)" value="NGN" />
+                <Picker.Item label="Dollar ($)" value="USD" />
+              </Picker>
+            </View>
+            {/* Cart Button */}
+            <TouchableOpacity
+              style={styles.cartButton}
+              onPress={() => router.push("/cart")}
+            >
+              <Ionicons name="bag-outline" size={24} color="#333" />
+              {cartItems.length > 0 && (
+                <View style={styles.cartBadge}>
+                  <Text style={styles.cartBadgeText}>{cartItems.length}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+            {/* Profile Avatar */}
+            <TouchableOpacity
+              style={styles.avatar}
+              onPress={() => router.push("/profile")}
+            >
+              <Ionicons name="person" size={20} color="#666" />
+            </TouchableOpacity>
+          </View>
+        </View>
+        {/* <View style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>{getGreeting()},</Text>
+            <Text style={styles.name}>{user?.firstName || "Guest"}</Text>
+          </View>
+          <View style={styles.headerActions}>
             <TouchableOpacity
               style={styles.cartButton}
               onPress={() => router.push("/cart")}
@@ -447,7 +496,7 @@ export default function FlightSearchScreen() {
               <Ionicons name="person" size={20} color="#666" />
             </TouchableOpacity>
           </View>
-        </View>
+        </View> */}
 
         {/* Trip Type Selection */}
         <View style={styles.tripTypeContainer}>
@@ -730,6 +779,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 12,
   },
+  currencyPickerContainer: {
+    width: 110,
+    marginRight: 8,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    overflow: "hidden",
+  },
+  picker: {
+    height: 40,
+    width: "100%",
+  },
+
   cartButton: {
     position: "relative",
     padding: 8,

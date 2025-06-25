@@ -1,5 +1,3 @@
-"use client";
-
 import { verifyPayment } from "@/lib/paymentAPI";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -30,15 +28,11 @@ export default function PaymentSuccessScreen() {
   const hasStartedProcessing = useRef(false);
 
   // Redux state
-  const user = useSelector((state: RootState) => state.auth.user);
-  const guestUser = useSelector(
-    (state: RootState | any) => state.global.guestUser
-  );
-  const traveler = useSelector(
-    (state: RootState | any) => state.global.traveler
-  );
+  const user = useSelector((state: RootState) => state.user.user);
+  const guestUser = useSelector((state: RootState) => state.user.guestUser);
+  const traveler = useSelector((state: RootState) => state.flight.traveler);
   const flightOffer = useSelector(
-    (state: RootState) => state.global.selectedFlight
+    (state: RootState) => state.flight.selectedFlight
   );
 
   useEffect(() => {

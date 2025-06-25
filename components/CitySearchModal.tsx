@@ -42,7 +42,7 @@ export default function CitySearchModal({
     setLoading(true);
     try {
       const response = await axios.get(
-        "https://manwhit.lemonwares.com.ng/api/flight/search",
+        "https://api.manwhitaroes.com/flight/search",
         { params: { keyword } }
       );
       setSuggestions(response?.data || []);

@@ -1,5 +1,3 @@
-"use client";
-
 import { useAirlineDetails } from "@/hooks/useAirlineDetails";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";

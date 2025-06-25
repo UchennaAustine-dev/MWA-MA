@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const BASE_URL = "https://manwhit.lemonwares.com.ng/api";
+// const BASE_URL = "https://manwhit.lemonwares.com.ng/api";
+const BASE_URL = "https://api.manwhitaroes.com";
 
 export async function getGuestUserById(id: string) {
   try {
