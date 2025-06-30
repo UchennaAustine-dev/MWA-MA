@@ -3,12 +3,18 @@ import DatePickerModal from "@/components/DatePickerModal";
 import FilterModal, { FilterState } from "@/components/FilterModal";
 import FlightCard from "@/components/FlightCard";
 import TravelerModal from "@/components/TravelerModal";
-import { fetchFlightPricing, searchFlights } from "@/lib/flightAPIs";
 import {
-  addToCart,
+  addFlightToCart,
+  fetchFlightPricing,
+  getUserCart,
+  searchFlights,
+} from "@/lib/flightAPIs";
+import { addToCart } from "@/redux/slices/cartSlice";
+import {
   addToSearchHistory,
   setSelectedFlight,
-} from "@/redux/slices/globalSlice";
+} from "@/redux/slices/flightSlice";
+// import {} from "@/redux/slices/globalSlice";
 import { setCurrency } from "@/redux/slices/toggleSlice";
 import { AppDispatch, RootState } from "@/redux/store";
 import {
@@ -21,7 +27,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -37,9 +43,37 @@ import { useDispatch, useSelector } from "react-redux";
 
 export default function FlightSearchScreen() {
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useSelector((state: RootState) => state.user.user);
   const currency = useSelector((state: RootState) => state.toggle.currency);
-  const cartItems = useSelector((state: RootState) => state.global.cartItems);
+  // const cartItems = useSelector((state: RootState) => state.cart.cartItems);
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        setLoading(true);
+        console.log("[Cart] Fetching cart data...");
+        if (user?.id) {
+          // Fetch from API for logged-in users
+          const userCart = await getUserCart(user?.id);
+          console.log("[Cart] User cart from API:", userCart);
+          setCartItems(userCart);
+        }
+      } catch (error) {
+        console.error("[Cart] Error fetching cart:", error);
+        Alert.alert("Error", "Failed to load cart items");
+      } finally {
+        setLoading(false);
+        console.log("[Cart] Done loading cart data.");
+      }
+    };
+
+    fetchCartData();
+  }, [user?.id]);
+  console.log("[Init] User:", user);
+  console.log("[Init] Currency:", currency);
+  console.log("[Init] Cart Items:", cartItems);
+
   const router = useRouter();
 
   // Trip configuration
@@ -64,6 +98,15 @@ export default function FlightSearchScreen() {
   const [departureDate, setDepartureDate] = useState(today);
   const [returnDate, setReturnDate] = useState(twoDaysLater);
 
+  useEffect(() => {
+    console.log(
+      "[Date Change] Departure:",
+      departureDate,
+      "Return:",
+      returnDate
+    );
+  }, [departureDate, returnDate]);
+
   // Travelers
   const [travelerConfig, setTravelerConfig] = useState<TravelerConfig>({
     adults: 1,
@@ -71,6 +114,10 @@ export default function FlightSearchScreen() {
     infants: 0,
     class: "Economy",
   });
+
+  useEffect(() => {
+    console.log("[TravelerConfig] Changed:", travelerConfig);
+  }, [travelerConfig]);
 
   // Modal states
   const [showFromModal, setShowFromModal] = useState(false);
@@ -87,6 +134,10 @@ export default function FlightSearchScreen() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [loadingFlightId, setLoadingFlightId] = useState<string | null>(null);
 
+  useEffect(() => {
+    console.log("[SearchResults] Updated:", searchResults.length, "offers");
+  }, [searchResults]);
+
   // Filter states
   const [filters, setFilters] = useState<FilterState>({
     selectedDepartureTime: null,
@@ -94,6 +145,10 @@ export default function FlightSearchScreen() {
     selectedAirlines: [],
     priceRange: [0, 100000],
   });
+
+  useEffect(() => {
+    console.log("[Filters] Updated:", filters);
+  }, [filters]);
 
   // Utility functions
   const getGreeting = () => {
@@ -127,6 +182,7 @@ export default function FlightSearchScreen() {
   };
 
   const swapCities = () => {
+    console.log("[SwapCities] Swapping", selectedFromCity, selectedToCity);
     const tempCity = selectedFromCity;
     setSelectedFromCity(selectedToCity);
     setSelectedToCity(tempCity);
@@ -254,12 +310,13 @@ export default function FlightSearchScreen() {
 
   // Search handler
   const handleFlightSearch = async () => {
-    // Validation
+    console.log("[FlightSearch] Initiated");
     if (!selectedFromCity.name || !selectedToCity.name) {
       Alert.alert(
         "Error",
         "Please select both departure and destination cities."
       );
+      console.warn("[FlightSearch] Missing city selection.");
       return;
     }
     if (selectedFromCity.code === selectedToCity.code) {
@@ -267,10 +324,12 @@ export default function FlightSearchScreen() {
         "Error",
         "Departure and destination cities cannot be the same."
       );
+      console.warn("[FlightSearch] Same city selected for both.");
       return;
     }
     if (travelerConfig.adults < 1) {
       Alert.alert("Error", "At least one adult traveler is required.");
+      console.warn("[FlightSearch] No adult traveler.");
       return;
     }
     if (tripType === "roundtrip" && !returnDate) {
@@ -278,10 +337,10 @@ export default function FlightSearchScreen() {
         "Error",
         "Please select a return date for round trip flights."
       );
+      console.warn("[FlightSearch] No return date for roundtrip.");
       return;
     }
 
-    // Save search to history
     const searchData = {
       from: selectedFromCity,
       to: selectedToCity,
@@ -292,6 +351,7 @@ export default function FlightSearchScreen() {
       class: travelerConfig.class,
       timestamp: new Date().toISOString(),
     };
+    console.log("[FlightSearch] Search data:", searchData);
     dispatch(addToSearchHistory(searchData));
 
     setSearchError(null);
@@ -305,23 +365,26 @@ export default function FlightSearchScreen() {
         destination: selectedToCity.name,
         adults: travelerConfig.adults,
         departureDate: formatDateForAPI(departureDate),
-        currency: currency ? "NGN" : "USD", // Use the currency from toggle slice
+        currency: currency ? "NGN" : "USD",
       };
+      console.log("[FlightSearch] API Params:", searchParams);
 
       const response = await searchFlights(searchParams);
 
       if (response && response.length >= 0) {
         setSearchResults(response);
+        console.log("[FlightSearch] Results:", response.length);
       } else {
         setSearchError(
           "No flights found for the selected criteria. Please try different dates or destinations."
         );
+        console.warn("[FlightSearch] No flights found.");
       }
     } catch (error: any) {
-      console.error("Flight search error:", error);
       setSearchError(
         error.message || "Failed to search flights. Please try again."
       );
+      console.error("[FlightSearch] Error:", error);
     } finally {
       setIsSearching(false);
     }
@@ -334,11 +397,12 @@ export default function FlightSearchScreen() {
         "Error",
         "Invalid flight data. Please select a valid flight."
       );
+      console.warn("[BookFlight] Invalid flight.");
       return;
     }
 
     setLoadingFlightId(flight.id);
-    console.log(`Flight`, flight);
+    console.log("[BookFlight] Booking flight:", flight);
 
     try {
       const pricingOffers: any = await fetchFlightPricing(flight);
@@ -352,11 +416,12 @@ export default function FlightSearchScreen() {
           "Error",
           "No pricing information available for this flight."
         );
+        console.warn("[BookFlight] No pricing info.");
         return;
       }
 
       const offer = pricingOffers.flightOffers[0];
-      console.log(`offer`, offer);
+      console.log("[BookFlight] Offer:", offer);
 
       const priceTotal = Number.parseFloat(offer.price.total);
 
@@ -365,23 +430,38 @@ export default function FlightSearchScreen() {
           "Error",
           "Invalid flight price. Please select a flight with a valid price."
         );
+        console.warn("[BookFlight] Invalid price:", offer.price.total);
         return;
       }
 
-      // Use the new Redux actions
+      let userIdForCart: any = user?.id || null;
+      // console.log(`addFlightToCart( flight)`, flight);
+
+      const addResult: any = await addFlightToCart(userIdForCart, {
+        flightData: flight,
+      });
+
+      if (!addResult) {
+        Alert.alert("Error", "Failed to add flight to cart.");
+        console.error("[BookFlight] addFlightToCart failed.");
+        return;
+      }
+
       dispatch(setSelectedFlight(flight));
       dispatch(addToCart(flight));
 
       Alert.alert("Success", `Flight booking initiated for ${flight.id}`);
+      console.log(
+        "[BookFlight] Booking success, navigating to traveler details."
+      );
 
-      // Navigate to payment page
       router.push("/traveler-details");
     } catch (error: any) {
       Alert.alert(
         "Error",
         "Failed to verify flight pricing. Please try again."
       );
-      console.error("Error verifying flight pricing:", error);
+      console.error("[BookFlight] Error verifying pricing:", error);
     } finally {
       setLoadingFlightId(null);
     }
@@ -432,26 +512,30 @@ export default function FlightSearchScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <View>
+          {/* Left: Greeting + Currency Picker */}
+          <View style={styles.headerLeft}>
             <Text style={styles.greeting}>{getGreeting()},</Text>
             <Text style={styles.name}>{user?.firstName || "Guest"}</Text>
-          </View>
-          <View style={styles.headerActions}>
-            {/* Currency Picker */}
-            <View style={styles.currencyPickerContainer}>
-              <Picker
-                selectedValue={currency ? "NGN" : "USD"}
-                style={styles.picker}
-                onValueChange={(value) => {
-                  dispatch(setCurrency(value === "NGN"));
-                }}
-                mode="dropdown"
-              >
-                <Picker.Item label="Naira (₦)" value="NGN" />
-                <Picker.Item label="Dollar ($)" value="USD" />
-              </Picker>
+
+            {/* Currency Picker Under Greeting */}
+            <View style={styles.currencySection}>
+              <Text style={styles.currencyLabel}>Currency</Text>
+              <View style={styles.currencyPickerWrapper}>
+                <Picker
+                  selectedValue={currency}
+                  onValueChange={(value) => dispatch(setCurrency(value))}
+                  style={styles.picker}
+                  mode="dropdown"
+                >
+                  <Picker.Item label="Naira (₦)" value="NGN" />
+                  <Picker.Item label="Dollar ($)" value="USD" />
+                </Picker>
+              </View>
             </View>
-            {/* Cart Button */}
+          </View>
+
+          {/* Right: Cart Button */}
+          <View style={styles.headerActions}>
             <TouchableOpacity
               style={styles.cartButton}
               onPress={() => router.push("/cart")}
@@ -463,15 +547,9 @@ export default function FlightSearchScreen() {
                 </View>
               )}
             </TouchableOpacity>
-            {/* Profile Avatar */}
-            <TouchableOpacity
-              style={styles.avatar}
-              onPress={() => router.push("/profile")}
-            >
-              <Ionicons name="person" size={20} color="#666" />
-            </TouchableOpacity>
           </View>
         </View>
+
         {/* <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>{getGreeting()},</Text>
@@ -759,44 +837,68 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     padding: 20,
     paddingTop: 10,
   },
+
+  headerLeft: {
+    flex: 1,
+  },
+
   greeting: {
     fontSize: 16,
     color: "#666",
     fontWeight: "400",
   },
+
   name: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#333",
     marginTop: 2,
+    marginBottom: 6,
   },
+
+  currencySection: {
+    marginTop: 6,
+    width: 140,
+  },
+
+  currencyLabel: {
+    fontSize: 14,
+    color: "#666",
+    marginBottom: 4,
+    fontFamily: "RedHatDisplay-Regular",
+  },
+
+  currencyPickerWrapper: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    height: 44,
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+
+  picker: {
+    height: 44,
+    width: "100%",
+    color: "#333",
+  },
+
   headerActions: {
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
-  },
-  currencyPickerContainer: {
-    width: 110,
-    marginRight: 8,
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    overflow: "hidden",
-  },
-  picker: {
-    height: 40,
-    width: "100%",
   },
 
   cartButton: {
     position: "relative",
     padding: 8,
   },
+
   cartBadge: {
     position: "absolute",
     top: 4,
@@ -808,11 +910,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+
   cartBadgeText: {
     color: "#fff",
     fontSize: 12,
     fontWeight: "bold",
   },
+
   avatar: {
     width: 40,
     height: 40,

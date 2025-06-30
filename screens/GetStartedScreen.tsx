@@ -1,3 +1,4 @@
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
@@ -12,6 +13,9 @@ import { useDispatch } from "react-redux";
 import { setHasSeenIntro } from "../redux/slices/authSlice";
 
 const { width } = Dimensions.get("window");
+
+// Create animatable version of expo-image's Image component
+const AnimatableExpoImage = Animatable.createAnimatableComponent(Image);
 
 const images = [
   require("../assets/images/arab-lady.png"),
@@ -42,61 +46,73 @@ export default function GetStartedScreen() {
       >
         {/* Left Column */}
         <View style={styles.leftColumn}>
-          <Animatable.Image
+          <AnimatableExpoImage
             source={images[0]} // arab-lady
             style={styles.leftTopImage}
             animation="fadeInUp"
             delay={200}
             duration={700}
             useNativeDriver
+            contentFit="cover"
+            cachePolicy="memory-disk"
           />
-          <Animatable.Image
+          <AnimatableExpoImage
             source={images[1]} // green-suite-lady
             style={styles.leftBottomImage}
             animation="fadeInUp"
             delay={400}
             duration={700}
             useNativeDriver
+            contentFit="cover"
+            cachePolicy="memory-disk"
           />
         </View>
 
         {/* Center Column */}
         <View style={styles.centerColumn}>
-          <Animatable.Image
+          <AnimatableExpoImage
             source={images[2]} // woman-smiling (top center)
             style={styles.centerTopImage}
             animation="fadeInUp"
             delay={300}
             duration={700}
             useNativeDriver
+            contentFit="cover"
+            cachePolicy="memory-disk"
           />
-          <Animatable.Image
+          <AnimatableExpoImage
             source={images[3]} // family-flying (bottom center)
             style={styles.centerBottomImage}
             animation="fadeInUp"
             delay={500}
             duration={700}
             useNativeDriver
+            contentFit="cover"
+            cachePolicy="memory-disk"
           />
         </View>
 
         {/* Right Column */}
         <View style={styles.rightColumn}>
-          <Animatable.Image
+          <AnimatableExpoImage
             source={images[4]} // hotel
             style={styles.rightTopImage}
             animation="fadeInUp"
             delay={400}
             duration={700}
             useNativeDriver
+            contentFit="cover"
+            cachePolicy="memory-disk"
           />
-          <Animatable.Image
+          <AnimatableExpoImage
             source={images[5]} // people-walking
             style={styles.rightBottomImage}
             animation="fadeInUp"
             delay={600}
             duration={700}
             useNativeDriver
+            contentFit="cover"
+            cachePolicy="memory-disk"
           />
         </View>
       </Animatable.View>

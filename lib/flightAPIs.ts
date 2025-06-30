@@ -53,9 +53,13 @@ export const addFlightToCart = async (
   flightData: any
 ): Promise<void> => {
   try {
-    await axios.post(`${BASE_URL}/booking/cart/${userId}`, {
-      flightData,
-    });
+    const response = await axios.post(
+      `${BASE_URL}/booking/add-to-cart/${userId}`,
+      {
+        flightData,
+      }
+    );
+    return response.data.data.flightData;
   } catch (error: any) {
     console.error("Add to cart API error:", error);
     throw new Error(
@@ -67,7 +71,7 @@ export const addFlightToCart = async (
 export const getUserCart = async (userId: string): Promise<any[]> => {
   try {
     const response = await axios.get(`${BASE_URL}/booking/cart/${userId}`);
-    console.log(`Cart Response`, response);
+    console.log(`Cart Response`, response.data.data);
 
     return response.data?.data || [];
   } catch (error: any) {
@@ -211,7 +215,7 @@ export const addExistingAddonsToFlightOffer = async (
 export async function fetchFlightOfferById(flightOfferId: string) {
   try {
     const response = await axios.get(
-      `${BASE_URL}/flight/flight-offer/${flightOfferId}`
+      `${BASE_URL}/flight/get-flight-offer/${flightOfferId}`
     );
     return response.data;
   } catch (error: any) {
@@ -246,5 +250,27 @@ export async function storeSelectedOffer(offerData: any) {
     throw new Error(
       error.response?.data?.message || "Failed to store flight offer"
     );
+  }
+}
+
+export async function bookFlightWithAddons(data: any) {
+  try {
+    const response: any = await axios.post(
+      `${BASE_URL}/flight/book-flight`,
+      data
+    );
+
+    console.log(`Response:`, response.data);
+
+    return response.data || response.data.data;
+  } catch (error: any) {
+    // Axios errors have response data under error.response.data
+    if (error.response) {
+      console.error("Booking failed:", error);
+      throw new Error(error.response.data.message || "Booking failed");
+    } else {
+      console.error("Booking error:", error.message);
+      throw error;
+    }
   }
 }

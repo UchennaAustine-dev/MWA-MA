@@ -1,3 +1,5 @@
+import { setUser } from "@/redux/slices/userSlice";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -11,12 +13,12 @@ import {
 } from "react-native";
 import { useDispatch } from "react-redux";
 import { api } from "../../lib/api";
-import { setUser } from "../../redux/slices/authSlice";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [showPasswordInput, setShowPasswordInput] = useState(false);
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // 👁️ Password toggle
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const dispatch = useDispatch();
@@ -53,7 +55,6 @@ export default function LoginScreen() {
     }
   };
 
-  // Handler for forgot password link
   const handleForgotPassword = () => {
     router.push("/auth/forgot-password");
   };
@@ -61,43 +62,56 @@ export default function LoginScreen() {
   return (
     <View style={styles.outer}>
       <View style={styles.container}>
-        {/* Logo */}
         <Image
           source={require("../../assets/images/Manwhit-Logo.png")}
           style={styles.logo}
           resizeMode="contain"
         />
 
-        {/* Title */}
         <Text style={styles.title}>Welcome Back</Text>
-
-        {/* Subtitle */}
         <Text style={styles.subtitle}>
           Login to manage your bookings, track your trips, and access exclusive
           travel deals.
         </Text>
 
-        {/* Email Input */}
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+        {/* Email Label + Input */}
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            placeholder="Enter your email"
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
 
-        {/* Password Input */}
+        {/* Password Label + Input */}
         {showPasswordInput && (
           <>
-            <TextInput
-              placeholder="Password"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              style={styles.input}
-            />
-            {/* Forgot Password Link */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Password</Text>
+              <View style={styles.passwordWrapper}>
+                <TextInput
+                  placeholder="Enter your password"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                  style={styles.passwordInput}
+                />
+                <TouchableOpacity
+                  onPress={() => setShowPassword((prev) => !prev)}
+                >
+                  <Ionicons
+                    name={showPassword ? "eye-off" : "eye"}
+                    size={22}
+                    color="#777"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <TouchableOpacity
               onPress={handleForgotPassword}
               activeOpacity={0.7}
@@ -107,7 +121,7 @@ export default function LoginScreen() {
           </>
         )}
 
-        {/* Button */}
+        {/* Action Button */}
         <TouchableOpacity
           style={[
             styles.button,
@@ -129,7 +143,6 @@ export default function LoginScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* Register Link */}
         <Text style={styles.bottomText}>
           Don't have an account?
           <Text
@@ -148,14 +161,12 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   outer: {
     flex: 1,
-    // backgroundColor: "#E5E5E5",
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
   },
   container: {
     backgroundColor: "#fff",
-    // borderRadius: 24,
     paddingVertical: 32,
     paddingHorizontal: 20,
     width: "92%",
@@ -187,6 +198,17 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontFamily: "Inter",
   },
+  inputGroup: {
+    width: "100%",
+    marginBottom: 12,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
+    marginBottom: 6,
+    color: "#333",
+    fontFamily: "RedHatDisplay-Regular",
+  },
   input: {
     width: "100%",
     borderWidth: 1,
@@ -195,14 +217,30 @@ const styles = StyleSheet.create({
     padding: 14,
     fontSize: 16,
     fontFamily: "RedHatDisplay-Regular",
-    marginBottom: 20,
     backgroundColor: "#fff",
+  },
+  passwordWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    backgroundColor: "#fff",
+  },
+  passwordInput: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 16,
+    fontFamily: "RedHatDisplay-Regular",
   },
   forgotText: {
     color: "#005ce6",
     fontSize: 14,
     alignSelf: "flex-end",
     marginBottom: 18,
+    marginTop: 6,
     marginRight: 2,
     fontWeight: "bold",
     fontFamily: "Inter",

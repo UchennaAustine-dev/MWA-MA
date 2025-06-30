@@ -1,17 +1,17 @@
+import { bookFlightWithAddons } from "@/lib/flightAPIs";
 import { verifyPayment } from "@/lib/paymentAPI";
+import { normalizeTraveler } from "@/utils/formatter";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   SafeAreaView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { useSelector } from "react-redux";
-import type { RootState } from "../redux/store";
 
 export default function PaymentSuccessScreen() {
   const router = useRouter();
@@ -24,41 +24,24 @@ export default function PaymentSuccessScreen() {
   const [error, setError] = useState<string | null>(null);
   const [bookingResult, setBookingResult] = useState<any>(null);
 
-  // Ref to prevent multiple executions
   const hasStartedProcessing = useRef(false);
 
-  // Redux state
-  const user = useSelector((state: RootState) => state.user.user);
-  const guestUser = useSelector((state: RootState) => state.user.guestUser);
-  const traveler = useSelector((state: RootState) => state.flight.traveler);
-  const flightOffer = useSelector(
-    (state: RootState) => state.flight.selectedFlight
-  );
+  const user = useSelector((state: any) => state.user.user);
+  const Traveler = useSelector((state: any) => state.flight.traveler);
+  const flightOffer = useSelector((state: any) => state.flight.selectedFlight);
+  const addonIds = useSelector((state: any) => state.addonIds);
 
   useEffect(() => {
-    // Prevent multiple executions
-    if (hasStartedProcessing.current) {
-      return;
-    }
-
-    if (!tx_ref || typeof tx_ref !== "string") {
-      const errorMsg = "No transaction reference found.";
-      setStatus("failed");
-      setMessage(errorMsg);
-      setError(errorMsg);
-      Alert.alert("Error", errorMsg);
-      return;
-    }
+    if (!tx_ref || hasStartedProcessing.current) return;
 
     hasStartedProcessing.current = true;
 
     const verifyAndBook = async () => {
       try {
-        // 1. Payment Verification Phase
         setStatus("verifying");
         setMessage("Verifying your payment...");
 
-        const paymentVerificationResult = await verifyPayment(tx_ref);
+        const paymentVerificationResult = await verifyPayment(tx_ref as string);
 
         if (!paymentVerificationResult.success) {
           const errorMsg =
@@ -66,45 +49,49 @@ export default function PaymentSuccessScreen() {
           setStatus("failed");
           setMessage("Payment not successful.");
           setError(errorMsg);
-          Alert.alert("Payment Failed", errorMsg);
           return;
         }
 
-        // 2. Flight Booking Phase
         setStatus("booking");
         setMessage("Payment successful! Booking your flight...");
 
-        // Simulate booking process (replace with actual booking API call)
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        if (!user?.id || !Traveler?.traveler || !flightOffer) {
+          const errorMsg = "Missing booking information.";
+          setStatus("failed");
+          setMessage(errorMsg);
+          setError(errorMsg);
+          return;
+        }
+        let travelersToSend = [normalizeTraveler(Traveler.traveler)];
+        const bookingPayload = {
+          flightOffer,
+          travelers: travelersToSend,
+          addonIds,
+          userId: user.id,
+        };
 
-        setBookingResult({ bookingId: "BK123456789" });
-        setStatus("success");
-        setMessage("Your flight has been booked successfully!");
+        const bookingResponse = await bookFlightWithAddons(bookingPayload);
 
-        Alert.alert(
-          "Booking Successful!",
-          "Your flight has been booked successfully!",
-          [
-            {
-              text: "View Bookings",
-              onPress: () => router.push("/profile"),
-            },
-            {
-              text: "Go Home",
-              onPress: () => router.push("/"),
-            },
-          ]
-        );
-      } catch (error: any) {
+        if (bookingResponse.success) {
+          setStatus("success");
+          setMessage("Your flight has been booked successfully!");
+          setBookingResult(bookingResponse);
+        } else {
+          const errorMsg = bookingResponse.message || "Flight booking failed.";
+          setStatus("failed");
+          setMessage(errorMsg);
+          setError(errorMsg);
+        }
+      } catch (err: any) {
+        console.error("Unexpected Error:", err);
         setStatus("failed");
-        setMessage("An error occurred during the process.");
-        setError(error.message || "An unexpected error occurred");
-        Alert.alert("Error", "An unexpected error occurred.");
+        setMessage("An unexpected error occurred.");
+        setError(err?.message || String(err));
       }
     };
 
     verifyAndBook();
-  }, [tx_ref, user, guestUser, traveler, flightOffer, router]);
+  }, [tx_ref]);
 
   const renderIcon = () => {
     switch (status) {

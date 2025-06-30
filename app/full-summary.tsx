@@ -25,7 +25,7 @@ export default function FullSummaryScreen() {
 
   const user = useSelector((state: RootState) => state.user.user);
   const selectedFlight: any = useSelector(
-    (state: RootState) => state.global.selectedFlight
+    (state: RootState) => state.flight.selectedFlight
   );
   const selectedOfferId: any = useSelector(
     (state: RootState) => state.flight.flightOffrId
@@ -33,6 +33,9 @@ export default function FullSummaryScreen() {
   const traveler: any = useSelector(
     (state: RootState) => state.flight.traveler
   );
+
+  // console.log(`traveler`, traveler);
+
   const guestUser = useSelector((state: RootState) => state.user.guestUser);
 
   const [travelerData, setTravelerData] = useState<any>(null);
@@ -42,9 +45,12 @@ export default function FullSummaryScreen() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
+  console.log(`traveler`, traveler[0]);
   const travelerId = Array.isArray(traveler)
-    ? traveler[0]?.id
+    ? traveler[0]?.traveler?.id
     : traveler?.traveler?.id;
+
+  console.log(`travelerId`, travelerId);
 
   // Fetch traveler details by ID
   useEffect(() => {
@@ -65,6 +71,8 @@ export default function FullSummaryScreen() {
       .catch((err) => console.error("Failed to fetch flight offer:", err))
       .finally(() => setFlightOfferLoading(false));
   }, [selectedOfferId]);
+
+  // console.log(`selectedOfferId`, selectedOfferId);
 
   // Addons hook
   const {
@@ -178,6 +186,8 @@ export default function FullSummaryScreen() {
     }
   };
 
+  console.log(`travelerData`, travelerData);
+
   const Traveler = travelerData;
 
   if (travelerLoading || flightOfferLoading) {
@@ -240,9 +250,9 @@ export default function FullSummaryScreen() {
         {/* Travel Add-ons Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Enhance Your Journey</Text>
-          {selectedOfferId && (
+          {/* {selectedOfferId && (
             <Text style={styles.flightId}>Flight ID: {selectedOfferId}</Text>
-          )}
+          )} */}
 
           {addonsLoading ? (
             <View style={styles.addonsLoading}>

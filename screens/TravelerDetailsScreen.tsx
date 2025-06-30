@@ -500,9 +500,8 @@
 //     fontWeight: "bold",
 //   },
 // });
-"use client";
 
-import { storeSelectedOffer } from "@/lib/flightAPIs";
+import { getUserCart, storeSelectedOffer } from "@/lib/flightAPIs";
 import { createGuestUser, createTraveler } from "@/lib/userAPI";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -559,7 +558,40 @@ export default function TravelerDetailsScreen() {
   const selectedFlight = useSelector(
     (state: RootState) => state.flight.selectedFlight
   );
-  const cartItems = useSelector((state: RootState) => state.cart.cartItems);
+
+  console.log("[Init] user:", user);
+  console.log("[Init] selectedFlight:", selectedFlight);
+
+  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        setLoading(true);
+        if (user?.id) {
+          // Fetch from API for logged-in users
+          const userCart: any[] = await getUserCart(user.id);
+          setCartItems(Array.isArray(userCart) ? userCart : []);
+        } else {
+          // For guests, use Redux state (if available)
+          setCartItems([]);
+        }
+      } catch (error) {
+        console.error("[Cart] Error fetching cart:", error);
+        Alert.alert("Error", "Failed to load cart items");
+        setCartItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCartData();
+  }, [user?.id]);
+
+  // const CartInfo = userCart[0].flightData.flightData;
+
+  // console.log(`CartInfo`, CartInfo);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -569,7 +601,8 @@ export default function TravelerDetailsScreen() {
 
   const { countries, loadingCountries, countryError } = useCountries();
 
-  // Billing form state (for guest users)
+  // console.log("[Init] countries:", countries);
+
   const [billingInfo, setBillingInfo] = useState<BillingFormData>({
     firstName: "",
     lastName: "",
@@ -579,10 +612,9 @@ export default function TravelerDetailsScreen() {
   });
   const [billingFormSubmitted, setBillingFormSubmitted] = useState(false);
 
-  // Get passenger count from selectedFlight or default to 1
   const passengerCount = selectedFlight?.travelerPricings?.length || 1;
+  console.log("[PassengerCount]", passengerCount);
 
-  // Traveler state
   const [travelers, setTravelers] = useState<TravelerFormData[]>(() =>
     Array.from({ length: passengerCount }, () => ({
       firstName: "",
@@ -600,7 +632,6 @@ export default function TravelerDetailsScreen() {
     }))
   );
 
-  // Modal states
   const [showGenderModal, setShowGenderModal] = useState<number | null>(null);
   const [showNationalityModal, setShowNationalityModal] = useState<
     number | null
@@ -630,6 +661,7 @@ export default function TravelerDetailsScreen() {
         passportExpiry: "",
       }))
     );
+    console.log("[Travelers] Reset for passengerCount:", passengerCount);
 
     // Pre-fill first traveler's info if available
     if (user || (guestUser && billingFormSubmitted)) {
@@ -651,6 +683,7 @@ export default function TravelerDetailsScreen() {
             : t
         )
       );
+      console.log("[Travelers] Pre-filled first traveler with user/guest info");
     }
   }, [passengerCount, user, guestUser, billingFormSubmitted, billingInfo]);
 
@@ -661,13 +694,19 @@ export default function TravelerDetailsScreen() {
     const persistBooking = async () => {
       try {
         const result = await storeSelectedOffer({ offerData: selectedFlight });
+        console.log("[PersistBooking] Result:", result);
+
         if (isMounted && result.flightOfferId) {
           setFlightOfferId(result.flightOfferId);
           dispatch(setFlightOffrId(result.flightOfferId));
+          console.log(
+            "[PersistBooking] flightOfferId set:",
+            result.flightOfferId
+          );
         }
       } catch (error) {
         if (isMounted) {
-          console.error("Failed to store booking:", error);
+          console.error("[PersistBooking] Failed to store booking:", error);
           Alert.alert(
             "Error",
             "Failed to store booking details. Please try again."
@@ -678,6 +717,7 @@ export default function TravelerDetailsScreen() {
     persistBooking();
     return () => {
       isMounted = false;
+      console.log("[PersistBooking] Cleanup on unmount");
     };
   }, [selectedFlight, flightOfferId, dispatch]);
 
@@ -688,29 +728,36 @@ export default function TravelerDetailsScreen() {
           i === index ? { ...traveler, [field]: value } : traveler
         )
       );
+      console.log(
+        `[updateTraveler] Traveler ${index} field ${field} updated to`,
+        value
+      );
     },
     []
   );
 
   const isBillingFormValid = () => {
-    return (
+    const valid =
       billingInfo.firstName.trim() &&
       billingInfo.lastName.trim() &&
       billingInfo.email.trim() &&
       billingInfo.phone.trim() &&
-      billingInfo.nationality
-    );
+      billingInfo.nationality;
+    console.log("[isBillingFormValid]", valid);
+    return valid;
   };
 
   const isTravelerFormValid = () => {
-    if (!agreedToTerms) return false;
-
+    if (!agreedToTerms) {
+      console.log("[isTravelerFormValid] Terms not agreed");
+      return false;
+    }
     const activeTravelers = showAdditionalTravelers
       ? travelers
       : [travelers[0]];
 
-    return activeTravelers.every((traveler) => {
-      return (
+    const valid = activeTravelers.every((traveler) => {
+      const result =
         traveler.firstName.trim() &&
         traveler.lastName.trim() &&
         traveler.gender &&
@@ -720,14 +767,20 @@ export default function TravelerDetailsScreen() {
         traveler.nationality &&
         traveler.birthPlace.trim() &&
         traveler.passportNumber.trim() &&
-        traveler.passportExpiry
-      );
+        traveler.passportExpiry;
+      if (!result) {
+        console.warn("[isTravelerFormValid] Incomplete traveler:", traveler);
+      }
+      return result;
     });
+    console.log("[isTravelerFormValid]", valid);
+    return valid;
   };
 
   const handleBillingSubmit = async () => {
     if (!isBillingFormValid()) {
       setError("Please fill in all required billing information.");
+      console.warn("[handleBillingSubmit] Invalid billing info:", billingInfo);
       return;
     }
 
@@ -750,12 +803,14 @@ export default function TravelerDetailsScreen() {
         "Success",
         "Billing information saved. Please proceed with traveler details."
       );
+      console.log("[handleBillingSubmit] Guest user created:", newGuestUserId);
     } catch (err: any) {
       setError(err.message || "Failed to save billing information.");
       Alert.alert(
         "Error",
         err.message || "Failed to save billing information."
       );
+      console.error("[handleBillingSubmit] Error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -765,11 +820,13 @@ export default function TravelerDetailsScreen() {
     if (!agreedToTerms) {
       setError("Please agree to the terms and conditions.");
       Alert.alert("Error", "Please agree to the terms and conditions.");
+      console.warn("[handleSubmit] Terms not agreed");
       return;
     }
     if (!flightOfferId) {
       setError("Booking ID not available yet. Please wait.");
       Alert.alert("Error", "Booking ID not available yet. Please wait.");
+      console.warn("[handleSubmit] Missing flightOfferId");
       return;
     }
 
@@ -796,6 +853,10 @@ export default function TravelerDetailsScreen() {
           "Error",
           `Please fill in all required fields for Adult ${i + 1}.`
         );
+        console.warn(
+          `[handleSubmit] Incomplete traveler at index ${i}:`,
+          traveler
+        );
         return;
       }
     }
@@ -816,17 +877,22 @@ export default function TravelerDetailsScreen() {
 
         const stateTravelerDetails = await createTraveler(travelerData);
         travelerResults.push(stateTravelerDetails);
+        console.log("[handleSubmit] Traveler created:", stateTravelerDetails);
       }
 
       dispatch(setTraveler(travelerResults));
       router.push("/full-summary");
       Alert.alert("Success", "All travelers created successfully!");
+      console.log(
+        "[handleSubmit] All travelers created, navigating to summary."
+      );
     } catch (err: any) {
       setError(err.message || "Failed to create travelers. Please try again.");
       Alert.alert(
         "Error",
         err.message || "Failed to create travelers. Please try again."
       );
+      console.error("[handleSubmit] Error:", err);
     } finally {
       setIsLoading(false);
     }
@@ -834,23 +900,37 @@ export default function TravelerDetailsScreen() {
 
   const formatCurrency = (amount: any, currency = "NGN") => {
     const symbol = currency === "NGN" ? "₦" : "$";
-    return `${symbol}${Number(amount).toLocaleString()}`;
+    const formatted = `${symbol}${Number(amount).toLocaleString()}`;
+    console.log("[formatCurrency]", formatted);
+    return formatted;
+  };
+
+  const getFlightData = (cartItem: any) => {
+    if (cartItem?.flightData?.flightData) return cartItem.flightData.flightData;
+    if (cartItem?.flightData) return cartItem.flightData;
+    return cartItem;
   };
 
   const calculateTotal = () => {
-    return cartItems.reduce((total, item) => {
-      const price = item?.price?.total || item?.price?.grandTotal || 0;
-      return total + Number(price);
+    return cartItems.reduce((sum, item) => {
+      const flightData = getFlightData(item);
+      const price =
+        flightData?.price?.total || flightData?.price?.grandTotal || 0;
+      return sum + Number(price);
     }, 0);
   };
 
   const formatDateForDisplay = (dateString: string) => {
     if (!dateString) return "";
-    return new Date(dateString).toLocaleDateString();
+    const formatted = new Date(dateString).toLocaleDateString();
+    console.log("[formatDateForDisplay]", formatted);
+    return formatted;
   };
 
   const formatDateForAPI = (date: Date) => {
-    return date.toISOString().split("T")[0];
+    const formatted = date.toISOString().split("T")[0];
+    console.log("[formatDateForAPI]", formatted);
+    return formatted;
   };
 
   const handleDateChange = (
@@ -873,10 +953,17 @@ export default function TravelerDetailsScreen() {
           field as keyof TravelerFormData,
           formatDateForAPI(selectedDate)
         );
+        console.log(
+          "[handleDateChange] Android date set for traveler",
+          travelerIndex,
+          field,
+          selectedDate
+        );
       }
     } else {
       if (selectedDate) {
         setTempDate(selectedDate);
+        console.log("[handleDateChange] iOS tempDate set:", selectedDate);
       }
     }
   };
@@ -889,9 +976,16 @@ export default function TravelerDetailsScreen() {
     );
     setShowDatePicker(null);
     setShowExpiryPicker(null);
+    console.log(
+      "[confirmIOSDate] Date confirmed for traveler",
+      travelerIndex,
+      field,
+      tempDate
+    );
   };
 
   const showTravelerForms = user || billingFormSubmitted;
+  console.log("[showTravelerForms]", showTravelerForms);
 
   return (
     <SafeAreaView style={styles.container}>
