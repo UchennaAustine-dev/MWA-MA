@@ -1,11 +1,9 @@
+"use client";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
 import {
-  ActivityIndicator,
   Alert,
   SafeAreaView,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -13,14 +11,12 @@ import {
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/slices/authSlice";
-import type { AppDispatch, RootState } from "../redux/store";
+import type { RootState } from "../redux/store";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.user.user);
-  const [activeTab, setActiveTab] = useState<"profile" | "bookings">("profile");
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.user?.user);
 
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
@@ -30,7 +26,7 @@ export default function ProfileScreen() {
         style: "destructive",
         onPress: () => {
           dispatch(logout());
-          router.replace("/");
+          router.replace("/" as any);
         },
       },
     ]);
@@ -42,32 +38,20 @@ export default function ProfileScreen() {
     }`.toUpperCase();
   };
 
-  const profileItems = [
+  const menuItems = [
     {
       icon: "person-outline",
       title: "Personal Information",
       subtitle: "Update your personal details",
-      //   onPress: () => router.push("/edit-profile"),
+      onPress: () => router.push("/profile-details" as any),
+      color: "#DC2626",
     },
     {
       icon: "airplane-outline",
       title: "My Bookings",
       subtitle: "View your flight bookings",
-      onPress: () => setActiveTab("bookings"),
-    },
-    {
-      icon: "card-outline",
-      title: "Payment Methods",
-      subtitle: "Manage your payment options",
-      onPress: () =>
-        Alert.alert("Coming Soon", "This feature will be available soon"),
-    },
-    {
-      icon: "notifications-outline",
-      title: "Notifications",
-      subtitle: "Manage notification preferences",
-      onPress: () =>
-        Alert.alert("Coming Soon", "This feature will be available soon"),
+      onPress: () => router.push("/my-bookings" as any),
+      color: "#DC2626",
     },
     {
       icon: "help-circle-outline",
@@ -75,6 +59,7 @@ export default function ProfileScreen() {
       subtitle: "Get help and contact support",
       onPress: () =>
         Alert.alert("Coming Soon", "This feature will be available soon"),
+      color: "#DC2626",
     },
     {
       icon: "settings-outline",
@@ -82,19 +67,9 @@ export default function ProfileScreen() {
       subtitle: "App preferences and settings",
       onPress: () =>
         Alert.alert("Coming Soon", "This feature will be available soon"),
+      color: "#DC2626",
     },
   ];
-
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Loading profile...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -104,63 +79,70 @@ export default function ProfileScreen() {
           onPress={() => router.back()}
           style={styles.backButton}
         >
-          <Ionicons name="arrow-back" size={24} color="#333" />
+          <Ionicons name="arrow-back" size={24} color="#000000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Profile</Text>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Ionicons name="log-out-outline" size={24} color="#d32f2f" />
+          <Ionicons name="log-out-outline" size={24} color="#DC2626" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* User Info Card */}
-        <View style={styles.userCard}>
-          <View style={styles.avatarContainer}>
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>
-                {getInitials(user?.firstName, user?.lastName)}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.userInfo}>
-            <Text style={styles.userName}>
-              {user?.firstName} {user?.lastName}
+      {/* User Info Card */}
+      <View style={styles.userCard}>
+        <View style={styles.avatarContainer}>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {getInitials(user?.firstName, user?.lastName)}
             </Text>
-            <Text style={styles.userEmail}>{user?.email}</Text>
           </View>
         </View>
+        <View style={styles.userInfo}>
+          <Text style={styles.userName}>
+            {user?.firstName} {user?.lastName}
+          </Text>
+          <Text style={styles.userEmail}>{user?.email}</Text>
+        </View>
+      </View>
 
-        {/* Profile Menu */}
-        <View style={styles.menuContainer}>
-          {profileItems.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.menuItem,
-                index === profileItems.length - 1 && styles.lastMenuItem,
-              ]}
-              onPress={item.onPress}
-            >
-              <View style={styles.menuItemLeft}>
-                <View style={styles.menuIconContainer}>
-                  <Ionicons name={item.icon as any} size={24} color="#007AFF" />
-                </View>
-                <View style={styles.menuItemText}>
-                  <Text style={styles.menuItemTitle}>{item.title}</Text>
-                  <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
-                </View>
+      {/* Menu Items */}
+      <View style={styles.menuContainer}>
+        {menuItems.map((item, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.menuItem,
+              index === menuItems.length - 1 && styles.lastMenuItem,
+            ]}
+            onPress={item.onPress}
+          >
+            <View style={styles.menuItemLeft}>
+              <View
+                style={[
+                  styles.menuIconContainer,
+                  { backgroundColor: `${item.color}15` },
+                ]}
+              >
+                <Ionicons
+                  name={item.icon as any}
+                  size={24}
+                  color={item.color}
+                />
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#ccc" />
-            </TouchableOpacity>
-          ))}
-        </View>
+              <View style={styles.menuItemText}>
+                <Text style={styles.menuItemTitle}>{item.title}</Text>
+                <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
+          </TouchableOpacity>
+        ))}
+      </View>
 
-        {/* App Info */}
-        <View style={styles.appInfo}>
-          <Text style={styles.appInfoText}>Flight Search App v1.0.0</Text>
-          <Text style={styles.appInfoText}>© 2024 Your Company</Text>
-        </View>
-      </ScrollView>
+      {/* App Info */}
+      <View style={styles.appInfo}>
+        <Text style={styles.appInfoText}>Manwhit Aroes v1.0.0</Text>
+        <Text style={styles.appInfoText}>© 2024 Manwhit Aroes</Text>
+      </View>
     </SafeAreaView>
   );
 }
@@ -168,17 +150,17 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F8F9FA",
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#fff",
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#F0F0F0",
   },
   backButton: {
     padding: 8,
@@ -186,35 +168,22 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
+    color: "#000000",
   },
   logoutButton: {
     padding: 8,
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: "#666",
-  },
-  content: {
-    flex: 1,
-  },
   userCard: {
-    backgroundColor: "#fff",
-    margin: 16,
-    borderRadius: 12,
-    padding: 20,
+    backgroundColor: "#FFFFFF",
+    margin: 20,
+    borderRadius: 16,
+    padding: 24,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   avatarContainer: {
     marginBottom: 16,
@@ -223,14 +192,14 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#DC2626",
     justifyContent: "center",
     alignItems: "center",
   },
   avatarText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#fff",
+    color: "#FFFFFF",
   },
   userInfo: {
     alignItems: "center",
@@ -238,31 +207,31 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
+    color: "#000000",
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: "#666",
+    color: "#666666",
   },
   menuContainer: {
-    backgroundColor: "#fff",
-    marginHorizontal: 16,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    backgroundColor: "#FFFFFF",
+    marginHorizontal: 20,
+    borderRadius: 16,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: "#F0F0F0",
   },
   lastMenuItem: {
     borderBottomWidth: 0,
@@ -273,13 +242,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#e3f2fd",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 12,
+    marginRight: 16,
   },
   menuItemText: {
     flex: 1,
@@ -287,12 +255,12 @@ const styles = StyleSheet.create({
   menuItemTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+    color: "#000000",
     marginBottom: 2,
   },
   menuItemSubtitle: {
     fontSize: 14,
-    color: "#666",
+    color: "#666666",
   },
   appInfo: {
     alignItems: "center",
@@ -300,7 +268,7 @@ const styles = StyleSheet.create({
   },
   appInfoText: {
     fontSize: 12,
-    color: "#999",
+    color: "#999999",
     marginBottom: 4,
   },
 });
