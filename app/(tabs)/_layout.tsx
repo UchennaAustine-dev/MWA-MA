@@ -7,7 +7,9 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#007AFF",
+        // tabBarActiveTintColor: "#007AFF",
+        tabBarActiveTintColor: "#DC2626", // changed from #007AFF to red
+
         tabBarInactiveTintColor: "#8E8E93",
         tabBarStyle: {
           backgroundColor: "#FFFFFF",
@@ -95,6 +97,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: "Profile",
+          tabBarStyle: { display: "none" }, // hide tab bar
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
               name={focused ? "person" : "person-outline"}

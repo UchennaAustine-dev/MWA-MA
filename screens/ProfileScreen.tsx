@@ -18,7 +18,7 @@ import type { AppDispatch, RootState } from "../redux/store";
 export default function ProfileScreen() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector((state: RootState) => state.auth.user);
+  const user = useSelector((state: RootState) => state.user.user);
   const [activeTab, setActiveTab] = useState<"profile" | "bookings">("profile");
   const [loading, setLoading] = useState(false);
 

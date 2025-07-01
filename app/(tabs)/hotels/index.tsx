@@ -11,7 +11,6 @@ import {
   Text,
   View,
 } from "react-native";
-import { useSelector } from "react-redux";
 
 // Components
 import CitySearchModal from "../../../components/hotels/CitySearchModal";
@@ -22,6 +21,7 @@ import SearchForm from "../../../components/hotels/SearchForm";
 
 // Hooks and Utils
 import DatePickerModal from "@/components/DatePickerModal";
+import { useAppSelector } from "@/redux/hooks";
 import { useHotelSearch } from "../../../hooks/useHotelSearch";
 import { baseURL } from "../../../lib/api";
 import {
@@ -51,7 +51,7 @@ interface SearchParams {
 
 export default function HotelsScreen() {
   const router = useRouter();
-  const user: any = useSelector((state: any) => state.auth?.user);
+  const user: any = useAppSelector((state: any) => state.user?.user);
   const {
     hotels,
     isSearching,
