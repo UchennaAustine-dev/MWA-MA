@@ -1,12 +1,26 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { FlightOffer } from "../../types/flight-types";
 
+interface SearchHistoryItem {
+  from: any;
+  to: any;
+  departureDate: string;
+  returnDate?: string | null;
+  travelers: number;
+  class: string;
+  timestamp: string;
+  tripType?: string;
+}
 interface FlightState {
   selectedFlight: Record<string, any> | null;
   flightOffrId: string | null;
   traveler: Record<string, any>[] | null;
+  searchResults: FlightOffer[];
   searchHistory: any[];
   favoriteFlights: FlightOffer[];
+  isLoading: boolean;
+  error: string | null;
+  favorites: FlightOffer[];
 }
 
 const initialState: FlightState = {
@@ -14,18 +28,22 @@ const initialState: FlightState = {
   flightOffrId: null,
   traveler: [],
   searchHistory: [],
+  searchResults: [],
   favoriteFlights: [],
+  isLoading: false,
+  error: null,
+  favorites: [],
 };
 
 export const flightSlice = createSlice({
   name: "flight",
   initialState,
   reducers: {
-    setSelectedFlight: (
-      state,
-      action: PayloadAction<Record<string, any> | null>
-    ) => {
+    setSelectedFlight: (state, action: PayloadAction<FlightOffer | null>) => {
       state.selectedFlight = action.payload;
+    },
+    setSearchResults: (state, action: PayloadAction<FlightOffer[]>) => {
+      state.searchResults = action.payload;
     },
     setFlightOffrId: (state, action: PayloadAction<string | null>) => {
       state.flightOffrId = action.payload;
@@ -53,7 +71,10 @@ export const flightSlice = createSlice({
     clearTravelers: (state) => {
       state.traveler = [];
     },
-    addToSearchHistory: (state, action: PayloadAction<any>) => {
+    addToSearchHistory: (
+      state,
+      action: PayloadAction<SearchHistoryItem | any>
+    ) => {
       // Add to beginning of array and limit to 10 items
       state.searchHistory.unshift(action.payload);
       if (state.searchHistory.length > 10) {
@@ -64,17 +85,29 @@ export const flightSlice = createSlice({
       state.searchHistory = [];
     },
     addToFavorites: (state, action: PayloadAction<FlightOffer>) => {
-      const exists = state.favoriteFlights.find(
+      const exists = state.favorites.find(
         (flight) => flight.id === action.payload.id
       );
       if (!exists) {
-        state.favoriteFlights.push(action.payload);
+        state.favorites.push(action.payload);
       }
     },
     removeFromFavorites: (state, action: PayloadAction<string>) => {
-      state.favoriteFlights = state.favoriteFlights.filter(
+      state.favorites = state.favorites.filter(
         (flight) => flight.id !== action.payload
       );
+    },
+    clearFavorites: (state) => {
+      state.favorites = [];
+    },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.isLoading = action.payload;
+    },
+    setError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
+    },
+    clearSearchResults: (state) => {
+      state.searchResults = [];
     },
   },
 });
@@ -90,6 +123,11 @@ export const {
   clearSearchHistory,
   addToFavorites,
   removeFromFavorites,
+  setError,
+  setLoading,
+  setSearchResults,
+  clearFavorites,
+  clearSearchResults,
 } = flightSlice.actions;
 
 export default flightSlice.reducer;

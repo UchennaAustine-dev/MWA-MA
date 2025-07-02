@@ -3,6 +3,116 @@ import type { FlightOffer, FlightSearchParams } from "../types/flight-types";
 
 // const BASE_URL = "https://manwhit.lemonwares.com.ng/api";
 const BASE_URL = "https://api.manwhitaroes.com";
+// const BASE_URL = "http://192.168.1.100:8000";
+
+// Airport Details API
+export interface AirportDetails {
+  iataCode: string;
+  name: string;
+  detailedName?: string;
+  city?: string;
+  cityCode?: string;
+  country?: string;
+  countryCode?: string;
+  regionCode?: string;
+  timezone?: string;
+  coordinates?: {
+    latitude: number;
+    longitude: number;
+  };
+  analytics?: any;
+  type?: string;
+  subType?: string;
+  id?: string;
+  selfLink?: string;
+}
+
+// Airline Details API
+export interface AirlineDetails {
+  iataCode: string;
+  icaoCode?: string;
+  type?: string;
+  businessName?: string;
+  commonName?: string;
+  country?: string;
+}
+
+// Mock data for fallback
+const mockAirportData: { [key: string]: AirportDetails } = {
+  LAG: {
+    iataCode: "LAG",
+    name: "Murtala Muhammed International Airport",
+    city: "Lagos",
+    country: "Nigeria",
+    timezone: "Africa/Lagos",
+  },
+  ABV: {
+    iataCode: "ABV",
+    name: "Nnamdi Azikiwe International Airport",
+    city: "Abuja",
+    country: "Nigeria",
+    timezone: "Africa/Lagos",
+  },
+  LHR: {
+    iataCode: "LHR",
+    name: "Heathrow Airport",
+    city: "London",
+    country: "United Kingdom",
+    timezone: "Europe/London",
+  },
+  JFK: {
+    iataCode: "JFK",
+    name: "John F. Kennedy International Airport",
+    city: "New York",
+    country: "United States",
+    timezone: "America/New_York",
+  },
+  DXB: {
+    iataCode: "DXB",
+    name: "Dubai International Airport",
+    city: "Dubai",
+    country: "United Arab Emirates",
+    timezone: "Asia/Dubai",
+  },
+};
+
+const mockAirlineData: { [key: string]: AirlineDetails } = {
+  AA: {
+    iataCode: "AA",
+    icaoCode: "AAL",
+    commonName: "American Airlines",
+    businessName: "American Airlines Inc.",
+    country: "United States",
+  },
+  BA: {
+    iataCode: "BA",
+    icaoCode: "BAW",
+    commonName: "British Airways",
+    businessName: "British Airways Plc",
+    country: "United Kingdom",
+  },
+  EK: {
+    iataCode: "EK",
+    icaoCode: "UAE",
+    commonName: "Emirates",
+    businessName: "Emirates Airline",
+    country: "United Arab Emirates",
+  },
+  LH: {
+    iataCode: "LH",
+    icaoCode: "DLH",
+    commonName: "Lufthansa",
+    businessName: "Deutsche Lufthansa AG",
+    country: "Germany",
+  },
+  AF: {
+    iataCode: "AF",
+    icaoCode: "AFR",
+    commonName: "Air France",
+    businessName: "Air France",
+    country: "France",
+  },
+};
 
 export const searchFlights = async (
   params: FlightSearchParams
@@ -100,78 +210,109 @@ export const emptyUserFlightCart = async (userId: string): Promise<void> => {
   }
 };
 
-// Airport Details API
-export interface AirportDetails {
-  iataCode: string;
-  name: string;
-  detailedName?: string;
-  city?: string;
-  cityCode?: string;
-  country?: string;
-  countryCode?: string;
-  regionCode?: string;
-  timeZone?: string;
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
-  analytics?: any;
-  type?: string;
-  subType?: string;
-  id?: string;
-  selfLink?: string;
-}
+// export async function fetchAirportDetails(
+//   iataCode: string
+// ): Promise<AirportDetails | any> {
+//   if (!iataCode) {
+//     throw new Error("IATA code is required");
+//   }
 
-export async function fetchAirportDetails(
+//   try {
+//     const response = await axios.get(`${BASE_URL}/flight/airport-details`, {
+//       params: { iataCode },
+//     });
+//     return response.data;
+//   } catch (error: any) {
+//     console.error(
+//       "Error fetching airport details:",
+//       error.response?.data || error.message
+//     );
+//     throw error;
+//   }
+// }
+
+// export async function fetchAirlineDetails(
+//   iataCode: string
+// ): Promise<AirlineDetails | any> {
+//   if (!iataCode) {
+//     throw new Error("IATA code is required");
+//   }
+
+//   try {
+//     const response = await axios.get(`${BASE_URL}/flight/airline-details`, {
+//       params: { iataCode },
+//     });
+//     return response.data;
+//   } catch (error: any) {
+//     console.error(
+//       "Error fetching airline details:",
+//       error.response?.data || error.message
+//     );
+//     throw error;
+//   }
+// }
+
+// Fetch airport details with fallback
+export const fetchAirportDetails = async (
   iataCode: string
-): Promise<AirportDetails | any> {
+): Promise<AirportDetails> => {
   if (!iataCode) {
     throw new Error("IATA code is required");
+  }
+
+  // Check mock data first
+  if (mockAirportData[iataCode.toUpperCase()]) {
+    return mockAirportData[iataCode.toUpperCase()];
   }
 
   try {
     const response = await axios.get(`${BASE_URL}/flight/airport-details`, {
       params: { iataCode },
+      timeout: 5000, // Shorter timeout for details
     });
     return response.data;
   } catch (error: any) {
-    console.error(
-      "Error fetching airport details:",
-      error.response?.data || error.message
-    );
-    throw error;
+    console.warn(`Airport details not found for ${iataCode}, using fallback`);
+
+    // Return basic fallback data
+    return {
+      iataCode: iataCode.toUpperCase(),
+      name: `${iataCode.toUpperCase()} Airport`,
+      city: "Unknown",
+      country: "Unknown",
+    };
   }
-}
+};
 
-// Airline Details API
-export interface AirlineDetails {
-  iataCode: string;
-  type?: string;
-  icaoCode?: string;
-  businessName?: string;
-  commonName?: string;
-}
-
-export async function fetchAirlineDetails(
+// Fetch airline details with fallback
+export const fetchAirlineDetails = async (
   iataCode: string
-): Promise<AirlineDetails | any> {
+): Promise<AirlineDetails> => {
   if (!iataCode) {
     throw new Error("IATA code is required");
+  }
+
+  // Check mock data first
+  if (mockAirlineData[iataCode.toUpperCase()]) {
+    return mockAirlineData[iataCode.toUpperCase()];
   }
 
   try {
     const response = await axios.get(`${BASE_URL}/flight/airline-details`, {
       params: { iataCode },
+      timeout: 5000, // Shorter timeout for details
     });
     return response.data;
   } catch (error: any) {
-    console.error(
-      "Error fetching airline details:",
-      error.response?.data || error.message
-    );
-    throw error;
+    console.warn(`Airline details not found for ${iataCode}, using fallback`);
+
+    // Return basic fallback data
+    return {
+      iataCode: iataCode.toUpperCase(),
+      commonName: `${iataCode.toUpperCase()} Airlines`,
+    };
   }
-}
+};
 
 // Travel Addons API
 export async function getAddons() {
@@ -260,16 +401,26 @@ export async function bookFlightWithAddons(data: any) {
       data
     );
 
-    console.log(`Response:`, response.data);
+    console.log("[bookFlightWithAddons] Response data:", response.data);
 
-    return response.data || response.data.data;
+    // Return the nested data if exists, otherwise the whole response data
+    return response.data?.data || response.data;
   } catch (error: any) {
-    // Axios errors have response data under error.response.data
     if (error.response) {
-      console.error("Booking failed:", error);
-      throw new Error(error.response.data.message || "Booking failed");
+      // Log detailed error info for debugging
+      console.error(
+        "[bookFlightWithAddons] Booking failed with status:",
+        error.response.status
+      );
+      console.error(
+        "[bookFlightWithAddons] Error response data:",
+        error.response.data
+      );
+
+      // Throw a new Error with message from server or fallback message
+      throw new Error(error.response.data?.message || "Booking failed");
     } else {
-      console.error("Booking error:", error.message);
+      console.error("[bookFlightWithAddons] Booking error:", error.message);
       throw error;
     }
   }

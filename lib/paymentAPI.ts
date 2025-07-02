@@ -2,6 +2,7 @@ import axios from "axios";
 
 // const API_BASE_URL = "https://manwhit.lemonwares.com.ng/api";
 const API_BASE_URL = "https://api.manwhitaroes.com";
+// const API_BASE_URL = "http://192.168.1.100:8000";
 
 export interface PaymentVerificationResponse {
   success: boolean;

@@ -13,10 +13,11 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/Manwhit-Logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.manwhitaroes.app"
     },
     "web": {
       "bundler": "metro",
@@ -33,10 +34,21 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "jsEngine": "hermes",
+    "ios": {
+      "jsEngine": "jsc"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8ef85e1f-2ed7-4221-a92f-289768da404f"
+      }
     }
   }
 }

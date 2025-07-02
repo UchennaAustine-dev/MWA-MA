@@ -11,10 +11,11 @@
     "lint": "expo lint"
   },
   "dependencies": {
+    "@expo/metro-config": "^0.20.15",
     "@expo/vector-icons": "^14.1.0",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-community/checkbox": "^0.5.20",
-    "@react-native-community/datetimepicker": "^8.4.2",
+    "@react-native-community/datetimepicker": "8.4.1",
     "@react-native-community/slider": "^4.5.6",
     "@react-native-picker/picker": "^2.11.1",
     "@react-navigation/bottom-tabs": "^7.3.10",
@@ -23,15 +24,15 @@
     "@reduxjs/toolkit": "^2.8.2",
     "axios": "^1.10.0",
     "date-fns": "^2.30.0",
-    "expo": "~53.0.12",
+    "expo": "^53.0.15",
     "expo-blur": "~14.1.5",
     "expo-constants": "~17.1.6",
-    "expo-font": "~13.3.1",
+    "expo-font": "13.3.2",
     "expo-haptics": "~14.1.4",
-    "expo-image": "~2.3.0",
+    "expo-image": "2.3.1",
     "expo-linear-gradient": "~14.1.5",
-    "expo-linking": "~7.1.5",
-    "expo-router": "~5.1.0",
+    "expo-linking": "7.1.6",
+    "expo-router": "5.1.2",
     "expo-splash-screen": "~0.30.9",
     "expo-status-bar": "~2.2.3",
     "expo-symbols": "~0.4.5",
@@ -50,7 +51,8 @@
     "react-native-web": "~0.20.0",
     "react-native-webview": "^13.13.5",
     "react-redux": "^9.2.0",
-    "redux-devtools-expo-dev-plugin": "^2.0.0"
+    "redux-devtools-expo-dev-plugin": "^2.0.0",
+    "expo-dev-client": "~5.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

@@ -9,8 +9,10 @@ export function useAirportDetails(iataCode: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!iataCode) {
+    if (!iataCode || iataCode.length !== 3) {
       setAirportDetails(null);
+      setError(null);
+      setLoading(false);
       return;
     }
 
@@ -21,14 +23,17 @@ export function useAirportDetails(iataCode: string) {
         const details = await fetchAirportDetails(iataCode);
         setAirportDetails(details);
       } catch (err: any) {
-        setError(err.message || "Failed to fetch airport details");
+        console.warn(`Airport details failed for ${iataCode}:`, err.message);
+        setError("Details unavailable");
         setAirportDetails(null);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchDetails();
+    // Add a small delay to avoid too many rapid requests
+    const timeoutId = setTimeout(fetchDetails, 100);
+    return () => clearTimeout(timeoutId);
   }, [iataCode]);
 
   return { airportDetails, loading, error };

@@ -7,14 +7,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import type { FlightOffer } from "../types/flight-types";
-
-// Add import at the top
 import { useAppDispatch } from "../redux/hooks";
 import {
   addToFavorites,
   removeFromFavorites,
-} from "../redux/slices/globalSlice";
+} from "../redux/slices/flightSlice";
+import type { FlightOffer } from "../types/flight-types";
 
 interface FlightCardProps {
   flight: FlightOffer;
@@ -22,7 +20,6 @@ interface FlightCardProps {
   loading?: boolean;
 }
 
-// Add favorite functionality to the FlightCard component
 export default function FlightCard({
   flight,
   onBook,
@@ -48,12 +45,19 @@ export default function FlightCard({
   };
 
   const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return "N/A";
+    }
   };
 
   const formatDuration = (duration: string) => {
-    return duration?.replace("PT", "").toLowerCase() || "";
+    return duration?.replace("PT", "").toLowerCase() || "N/A";
   };
 
   const price = flight?.price?.total || flight?.price?.grandTotal;
@@ -75,7 +79,14 @@ export default function FlightCard({
   const lastSegment =
     lastItinerary?.segments?.[lastItinerary?.segments?.length - 1];
 
-  if (!firstSegment || !lastSegment) return null;
+  if (!firstSegment || !lastSegment) {
+    return (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle" size={24} color="#d32f2f" />
+        <Text style={styles.errorText}>Flight data unavailable</Text>
+      </View>
+    );
+  }
 
   const departureTime = formatTime(firstSegment.departure.at);
   const arrivalTime = formatTime(lastSegment.arrival.at);
@@ -123,6 +134,16 @@ export default function FlightCard({
         </View>
       </View>
 
+      {/* Flight info */}
+      <View style={styles.flightInfo}>
+        <Text style={styles.stopsInfo}>
+          {itineraries[0].segments.length === 1
+            ? "Non-stop"
+            : `${itineraries[0].segments.length - 1} stop(s)`}
+        </Text>
+        <Text style={styles.classInfo}>Economy</Text>
+      </View>
+
       {/* Action buttons */}
       <View style={styles.actions}>
         <TouchableOpacity
@@ -166,6 +187,9 @@ export default function FlightCard({
         <View style={styles.expandedDetails}>
           {itineraries.map((itinerary: any, itIndex: number) => (
             <View key={itIndex} style={styles.itinerary}>
+              <Text style={styles.itineraryTitle}>
+                {itIndex === 0 ? "Outbound" : "Return"} Flight
+              </Text>
               {itinerary.segments.map((segment: any, segIndex: number) => (
                 <View key={segIndex} style={styles.segment}>
                   <View style={styles.segmentHeader}>
@@ -226,6 +250,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+  },
+  errorContainer: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    borderWidth: 1,
+    borderColor: "#ffcdd2",
+  },
+  errorText: {
+    color: "#d32f2f",
+    fontSize: 14,
   },
   header: {
     flexDirection: "row",
@@ -299,6 +339,19 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     paddingHorizontal: 8,
   },
+  flightInfo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  stopsInfo: {
+    fontSize: 12,
+    color: "#666",
+  },
+  classInfo: {
+    fontSize: 12,
+    color: "#666",
+  },
   actions: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -336,6 +389,12 @@ const styles = StyleSheet.create({
   },
   itinerary: {
     marginBottom: 12,
+  },
+  itineraryTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 8,
   },
   segment: {
     backgroundColor: "#f8f9fa",

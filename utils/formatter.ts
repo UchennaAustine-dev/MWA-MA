@@ -8,20 +8,28 @@ export const formatDate = (
   try {
     const parsedDate = parseISO(dateString);
     if (!isValid(parsedDate)) {
-      // Invalid date string
       return null;
     }
-    return format(parsedDate, "yyyy-MM-dd"); // Correct format for API
+    return format(parsedDate, "yyyy-MM-dd");
   } catch {
     return null;
   }
 };
 
 export function normalizeTraveler(t: any) {
-  if (t.name && t.name.firstName && t.name.lastName) {
+  // Helper to check if a string is valid and non-empty
+  const isNonEmptyString = (str: any) =>
+    typeof str === "string" && str.trim().length > 0;
+
+  // Case 1: Nested name object exists and has valid firstName & lastName
+  if (
+    t.name &&
+    isNonEmptyString(t.name.firstName) &&
+    isNonEmptyString(t.name.lastName)
+  ) {
     return {
       ...t,
-      dateOfBirth: formatDate(t.dateOfBirth), // Normalize dateOfBirth here
+      dateOfBirth: formatDate(t.dateOfBirth),
       contact: {
         emailAddress: t.contact?.emailAddress || t.email,
         phones:
@@ -42,13 +50,22 @@ export function normalizeTraveler(t: any) {
     };
   }
 
-  // If flat structure, convert to nested and normalize dateOfBirth
+  // Case 2: Flat structure — validate flat firstName and lastName
+  if (!isNonEmptyString(t.firstName) || !isNonEmptyString(t.lastName)) {
+    console.error(
+      "[normalizeTraveler] Missing firstName or lastName in traveler:",
+      t
+    );
+    // You can throw an error here or handle it gracefully
+    throw new Error("Traveler must have firstName and lastName");
+  }
+
   return {
     ...t,
     dateOfBirth: formatDate(t.dateOfBirth),
     name: {
-      firstName: t.firstName,
-      lastName: t.lastName,
+      firstName: t.firstName.trim(),
+      lastName: t.lastName.trim(),
     },
     contact: {
       emailAddress: t.email,

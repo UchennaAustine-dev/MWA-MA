@@ -1,6 +1,5 @@
-import { useAirlineDetails } from "@/hooks/useAirlineDetails";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   StyleSheet,
@@ -8,12 +7,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useAirlineDetails } from "../hooks/useAirlineDetails";
 import { useAirportDetails } from "../hooks/useAirportDetails";
 import { useAppDispatch } from "../redux/hooks";
 import {
   addToFavorites,
   removeFromFavorites,
-} from "../redux/slices/globalSlice";
+} from "../redux/slices/flightSlice";
 import type { FlightOffer } from "../types/flight-types";
 
 interface EnhancedFlightCardProps {
@@ -30,79 +30,6 @@ export default function EnhancedFlightCard({
   const dispatch = useAppDispatch();
   const [expanded, setExpanded] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [segmentDetails, setSegmentDetails] = useState<{
-    [key: string]: {
-      segDepAirport: any;
-      segArrAirport: any;
-      segAirline: any;
-    };
-  }>({});
-
-  // Fetch airport and airline details outside the conditional block
-  const airportDetailsHooks: { [key: string]: any } = {};
-  const airlineDetailsHooks: { [key: string]: any } = {};
-
-  useEffect(() => {
-    const fetchSegmentDetails = async () => {
-      const details: {
-        [key: string]: {
-          segDepAirport: any;
-          segArrAirport: any;
-          segAirline: any;
-        };
-      } = {};
-
-      for (const itinerary of flight.itineraries) {
-        for (const segment of itinerary.segments) {
-          const key = `${segment.departure.iataCode}-${segment.arrival.iataCode}-${segment.carrierCode}`;
-          if (!details[key]) {
-            // Use the pre-fetched hooks
-            const segDepAirport =
-              airportDetailsHooks[segment.departure.iataCode];
-            const segArrAirport = airportDetailsHooks[segment.arrival.iataCode];
-            const segAirline = airlineDetailsHooks[segment.carrierCode];
-
-            details[key] = {
-              segDepAirport: segDepAirport?.airportDetails,
-              segArrAirport: segArrAirport?.airportDetails,
-              segAirline: segAirline?.airlineDetails,
-            };
-          }
-        }
-      }
-      setSegmentDetails(details);
-    };
-
-    if (expanded) {
-      fetchSegmentDetails();
-    }
-  }, [expanded, flight]);
-
-  // Pre-fetch airport and airline details
-  useEffect(() => {
-    const prefetchDetails = async () => {
-      const airportCodes = new Set<string>();
-      const airlineCodes = new Set<string>();
-
-      for (const itinerary of flight.itineraries) {
-        for (const segment of itinerary.segments) {
-          airportCodes.add(segment.departure.iataCode);
-          airportCodes.add(segment.arrival.iataCode);
-          airlineCodes.add(segment.carrierCode);
-        }
-      }
-
-      for (const code of airportCodes) {
-        airportDetailsHooks[code] = useAirportDetails(code);
-      }
-
-      for (const code of airlineCodes) {
-        airlineDetailsHooks[code] = useAirlineDetails(code);
-      }
-    };
-
-    prefetchDetails();
-  }, [flight]);
 
   const handleToggleFavorite = () => {
     if (isFavorite) {
@@ -149,12 +76,14 @@ export default function EnhancedFlightCard({
 
   // Use hooks for airport and airline details
   const { airportDetails: depAirport } = useAirportDetails(
-    firstSegment?.departure?.iataCode
+    firstSegment?.departure?.iataCode || ""
   );
   const { airportDetails: arrAirport } = useAirportDetails(
-    lastSegment?.arrival?.iataCode
+    lastSegment?.arrival?.iataCode || ""
   );
-  const { airlineDetails: primaryAirline } = useAirlineDetails(carrierCodes[0]);
+  const { airlineDetails: primaryAirline } = useAirlineDetails(
+    carrierCodes[0] || ""
+  );
 
   if (!firstSegment || !lastSegment) return null;
 
@@ -273,88 +202,9 @@ export default function EnhancedFlightCard({
               <Text style={styles.itineraryTitle}>
                 {itIndex === 0 ? "Outbound" : "Return"} Flight
               </Text>
-              {itinerary.segments.map((segment: any, segIndex: number) => {
-                const key = `${segment.departure.iataCode}-${segment.arrival.iataCode}-${segment.carrierCode}`;
-                const { segDepAirport, segArrAirport, segAirline } =
-                  segmentDetails[key] || {
-                    segDepAirport: null,
-                    segArrAirport: null,
-                    segAirline: null,
-                  };
-
-                return (
-                  <View key={segIndex} style={styles.segment}>
-                    <View style={styles.segmentHeader}>
-                      <View style={styles.carrierInfo}>
-                        <Ionicons name="airplane" size={16} color="#666" />
-                        <Text style={styles.carrierText}>
-                          {segAirline?.commonName || segment.carrierCode}{" "}
-                          {segment.number}
-                        </Text>
-                      </View>
-                      <Text style={styles.segmentDuration}>
-                        {formatDuration(segment.duration)}
-                      </Text>
-                    </View>
-
-                    <View style={styles.segmentRoute}>
-                      <View style={styles.segmentTime}>
-                        <Text style={styles.segmentTimeText}>
-                          {formatTime(segment.departure.at)}
-                        </Text>
-                        <Text style={styles.segmentAirport}>
-                          {segment.departure.iataCode}
-                        </Text>
-                        {segDepAirport?.name && (
-                          <Text
-                            style={styles.segmentAirportName}
-                            numberOfLines={2}
-                          >
-                            {segDepAirport.name}
-                          </Text>
-                        )}
-                      </View>
-
-                      <View style={styles.segmentLine}>
-                        <View style={styles.segmentDot} />
-                        <View style={styles.segmentLinePath} />
-                        <View style={styles.segmentDot} />
-                      </View>
-
-                      <View style={styles.segmentTime}>
-                        <Text style={styles.segmentTimeText}>
-                          {formatTime(segment.arrival.at)}
-                        </Text>
-                        <Text style={styles.segmentAirport}>
-                          {segment.arrival.iataCode}
-                        </Text>
-                        {segArrAirport?.name && (
-                          <Text
-                            style={styles.segmentAirportName}
-                            numberOfLines={2}
-                          >
-                            {segArrAirport.name}
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-
-                    {/* Additional segment details */}
-                    <View style={styles.segmentDetails}>
-                      <Text style={styles.segmentDetailText}>
-                        Aircraft: {segment.aircraft?.code || "N/A"}
-                      </Text>
-                      {segment.operating?.carrierCode &&
-                        segment.operating.carrierCode !==
-                          segment.carrierCode && (
-                          <Text style={styles.segmentDetailText}>
-                            Operated by: {segment.operating.carrierCode}
-                          </Text>
-                        )}
-                    </View>
-                  </View>
-                );
-              })}
+              {itinerary.segments.map((segment: any, segIndex: number) => (
+                <SegmentDetails key={segIndex} segment={segment} />
+              ))}
             </View>
           ))}
         </View>
@@ -362,6 +212,94 @@ export default function EnhancedFlightCard({
     </View>
   );
 }
+
+// Separate component for segment details to use hooks properly
+const SegmentDetails = ({ segment }: { segment: any }) => {
+  const { airportDetails: depAirport } = useAirportDetails(
+    segment.departure.iataCode
+  );
+  const { airportDetails: arrAirport } = useAirportDetails(
+    segment.arrival.iataCode
+  );
+  const { airlineDetails: airline } = useAirlineDetails(segment.carrierCode);
+
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
+
+  const formatDuration = (duration: string) => {
+    return duration?.replace("PT", "").toLowerCase() || "";
+  };
+
+  return (
+    <View style={styles.segment}>
+      <View style={styles.segmentHeader}>
+        <View style={styles.carrierInfo}>
+          <Ionicons name="airplane" size={16} color="#666" />
+          <Text style={styles.carrierText}>
+            {airline?.commonName || segment.carrierCode} {segment.number}
+          </Text>
+        </View>
+        <Text style={styles.segmentDuration}>
+          {formatDuration(segment.duration)}
+        </Text>
+      </View>
+
+      <View style={styles.segmentRoute}>
+        <View style={styles.segmentTime}>
+          <Text style={styles.segmentTimeText}>
+            {formatTime(segment.departure.at)}
+          </Text>
+          <Text style={styles.segmentAirport}>
+            {segment.departure.iataCode}
+          </Text>
+          {depAirport?.name && (
+            <Text style={styles.segmentAirportName} numberOfLines={2}>
+              {depAirport.name}
+            </Text>
+          )}
+        </View>
+
+        <View style={styles.segmentLine}>
+          <View style={styles.segmentDot} />
+          <View style={styles.segmentLinePath} />
+          <View style={styles.segmentDot} />
+        </View>
+
+        <View style={styles.segmentTime}>
+          <Text style={styles.segmentTimeText}>
+            {formatTime(segment.arrival.at)}
+          </Text>
+          <Text style={styles.segmentAirport}>{segment.arrival.iataCode}</Text>
+          {arrAirport?.name && (
+            <Text style={styles.segmentAirportName} numberOfLines={2}>
+              {arrAirport.name}
+            </Text>
+          )}
+        </View>
+      </View>
+
+      {/* Additional segment details */}
+      <View style={styles.segmentDetails}>
+        <Text style={styles.segmentDetailText}>
+          Aircraft: {segment.aircraft?.code || "N/A"}
+        </Text>
+        {segment.operating?.carrierCode &&
+          segment.operating.carrierCode !== segment.carrierCode && (
+            <Text style={styles.segmentDetailText}>
+              Operated by: {segment.operating.carrierCode}
+            </Text>
+          )}
+        {airline?.businessName && (
+          <Text style={styles.segmentDetailText}>
+            Airline: {airline.businessName}
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
