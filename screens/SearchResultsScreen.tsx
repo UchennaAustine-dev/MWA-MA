@@ -415,7 +415,7 @@
 import FilterModal, { type FilterState } from "@/components/FilterModal";
 import FlightCard from "@/components/FlightCard";
 import { addFlightToCart, fetchFlightPricing } from "@/lib/flightAPIs";
-import { addToCart } from "@/redux/slices/cartSlice";
+// import { addToCart } from "@/redux/slices/cartSlice";
 import { setSelectedFlight } from "@/redux/slices/flightSlice";
 import type { AppDispatch, RootState } from "@/redux/store";
 import type { FlightOffer } from "@/types/flight-types";
@@ -594,7 +594,7 @@ export default function SearchResultsScreen() {
       }
 
       dispatch(setSelectedFlight(flight));
-      dispatch(addToCart(flight));
+      // dispatch(addToCart(flight));
 
       Alert.alert(
         "Added to Cart",

@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "jsEngine": "jsc"
     },
     "android": {
       "adaptiveIcon": {
@@ -41,14 +41,17 @@
       "typedRoutes": true
     },
     "jsEngine": "hermes",
-    "ios": {
-      "jsEngine": "jsc"
-    },
     "extra": {
       "router": {},
       "eas": {
         "projectId": "8ef85e1f-2ed7-4221-a92f-289768da404f"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/8ef85e1f-2ed7-4221-a92f-289768da404f"
     }
   }
 }

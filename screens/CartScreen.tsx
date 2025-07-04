@@ -33,31 +33,31 @@ export default function CartScreen() {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [isEmptyingCart, setIsEmptyingCart] = useState(false);
 
-  console.log("[Init] User:", user);
-  console.log("[Init] Guest cart from Redux:", guestCart);
+  // console.log("[Init] User:", user);
+  // console.log("[Init] Guest cart from Redux:", guestCart);
 
   // Fetch cart data
   useEffect(() => {
     const fetchCartData = async () => {
       try {
         setLoading(true);
-        console.log("[Cart] Fetching cart data...");
+        // console.log("[Cart] Fetching cart data...");
         if (user?.id) {
           // Fetch from API for logged-in users
           const userCart = await getUserCart(user?.id);
-          console.log("[Cart] User cart from API:", userCart);
+          // console.log("[Cart] User cart from API:", userCart);
           setCartItems(userCart);
         } else {
           // Use Redux state for guest users
           setCartItems(guestCart);
-          console.log("[Cart] Guest cart set from Redux:", guestCart);
+          // console.log("[Cart] Guest cart set from Redux:", guestCart);
         }
       } catch (error) {
-        console.error("[Cart] Error fetching cart:", error);
+        // console.error("[Cart] Error fetching cart:", error);
         Alert.alert("Error", "Failed to load cart items");
       } finally {
         setLoading(false);
-        console.log("[Cart] Done loading cart data.");
+        // console.log("[Cart] Done loading cart data.");
       }
     };
 
@@ -67,7 +67,7 @@ export default function CartScreen() {
   const formatCurrency = (amount: any, currency = "NGN") => {
     const symbol = currency === "NGN" ? "₦" : "$";
     const formatted = `${symbol}${Number(amount).toLocaleString()}`;
-    console.log("[formatCurrency]", formatted);
+    // console.log("[formatCurrency]", formatted);
     return formatted;
   };
 
@@ -86,7 +86,7 @@ export default function CartScreen() {
       month: "short",
       day: "numeric",
     });
-    console.log("[formatDate]", isoString, "->", formatted);
+    // console.log("[formatDate]", isoString, "->", formatted);
     return formatted;
   };
 
@@ -99,38 +99,38 @@ export default function CartScreen() {
     } else {
       result = cartItem;
     }
-    console.log("[getFlightData] For cartItem:", cartItem, "->", result);
+    // console.log("[getFlightData] For cartItem:", cartItem, "->", result);
     return result;
   };
 
   const handleRemoveItem = async (cartId: string) => {
     try {
       setRemovingId(cartId);
-      console.log("[RemoveItem] Removing cart item:", cartId);
+      // console.log("[RemoveItem] Removing cart item:", cartId);
 
       if (user?.id) {
         // Remove from API for logged-in users
         await removeFlightFromCart(cartId);
         const updatedCart = await getUserCart(user.id);
         setCartItems(updatedCart);
-        console.log(
-          "[RemoveItem] Updated user cart after removal:",
-          updatedCart
-        );
+        // console.log(
+        //   "[RemoveItem] Updated user cart after removal:",
+        //   updatedCart
+        // );
       } else {
         // Remove from Redux for guest users
         dispatch(removeFromCart(cartId));
         setCartItems((prev) => prev.filter((item) => item.id !== cartId));
-        console.log("[RemoveItem] Updated guest cart after removal:", cartId);
+        // console.log("[RemoveItem] Updated guest cart after removal:", cartId);
       }
 
       Alert.alert("Success", "Flight removed from cart");
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to remove item");
-      console.error("[RemoveItem] Error:", error);
+      // console.error("[RemoveItem] Error:", error);
     } finally {
       setRemovingId(null);
-      console.log("[RemoveItem] Done removing cart item:", cartId);
+      // console.log("[RemoveItem] Done removing cart item:", cartId);
     }
   };
 
@@ -146,16 +146,16 @@ export default function CartScreen() {
           onPress: async () => {
             try {
               setIsEmptyingCart(true);
-              console.log("[EmptyCart] Emptying cart...");
+              // console.log("[EmptyCart] Emptying cart...");
 
               if (user?.id) {
                 await emptyUserFlightCart(user.id);
                 setCartItems([]);
-                console.log("[EmptyCart] User cart emptied via API.");
+                // console.log("[EmptyCart] User cart emptied via API.");
               } else {
                 dispatch(clearCart());
                 setCartItems([]);
-                console.log("[EmptyCart] Guest cart emptied via Redux.");
+                // console.log("[EmptyCart] Guest cart emptied via Redux.");
               }
 
               Alert.alert("Success", "Cart has been emptied");
@@ -164,7 +164,7 @@ export default function CartScreen() {
               console.error("[EmptyCart] Error:", error);
             } finally {
               setIsEmptyingCart(false);
-              console.log("[EmptyCart] Done emptying cart.");
+              // console.log("[EmptyCart] Done emptying cart.");
             }
           },
         },
@@ -179,7 +179,7 @@ export default function CartScreen() {
         flightData?.price?.total || flightData?.price?.grandTotal || 0;
       return total + Number(price);
     }, 0);
-    console.log("[calculateTotal] Cart total:", total);
+    // console.log("[calculateTotal] Cart total:", total);
     return total;
   };
 
@@ -192,7 +192,7 @@ export default function CartScreen() {
       console.warn("[Checkout] Attempted with empty cart.");
       return;
     }
-    console.log("[Checkout] Proceeding to traveler details...");
+    // console.log("[Checkout] Proceeding to traveler details...");
     router.push("/traveler-details");
   };
 

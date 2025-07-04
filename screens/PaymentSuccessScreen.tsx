@@ -306,7 +306,6 @@ import {
   clearSelectedFlight,
   clearTravelers,
 } from "@/redux/slices/flightSlice";
-import { clearUser } from "@/redux/slices/userSlice";
 import { normalizeTraveler } from "@/utils/formatter";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -358,7 +357,7 @@ export default function PaymentSuccessScreen() {
   const resetAll = () => {
     dispatch(clearSelectedFlight());
     dispatch(clearTravelers());
-    dispatch(clearUser()); // Uncomment if you want to reset user as well
+    // dispatch(clearUser()); // Uncomment if you want to reset user as well
     setStatus("verifying");
     setMessage("Verifying your payment...");
     setError(null);
@@ -520,16 +519,19 @@ export default function PaymentSuccessScreen() {
                 {seg.number}
               </Text>
             ))}
+
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleGoToBookings}
+            >
+              <Text style={styles.buttonText}>Go to My Bookings</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.infoText}>
+              You will be redirected to My Bookings shortly.
+            </Text>
           </View>
         )}
-
-        <TouchableOpacity style={styles.button} onPress={handleGoToBookings}>
-          <Text style={styles.buttonText}>Go to My Bookings</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.infoText}>
-          You will be redirected to My Bookings shortly.
-        </Text>
       </ScrollView>
     </SafeAreaView>
   );

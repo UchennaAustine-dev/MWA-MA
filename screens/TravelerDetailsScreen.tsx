@@ -1478,7 +1478,7 @@ export default function TravelerDetailsScreen() {
             <ScrollView style={styles.modalScrollView}>
               {loadingCountries ? (
                 <View style={styles.modalLoading}>
-                  <ActivityIndicator size="small" color="#007AFF" />
+                  <ActivityIndicator size="small" color="#DC2626" />
                   <Text>Loading countries...</Text>
                 </View>
               ) : countryError ? (
@@ -1602,7 +1602,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   header: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#DC2626",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 16,
@@ -1647,10 +1647,10 @@ const styles = StyleSheet.create({
   summaryPrice: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#007AFF",
+    color: "#DC2626",
   },
   warningBanner: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#DC2626",
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
@@ -1854,7 +1854,7 @@ const styles = StyleSheet.create({
   },
   doneText: {
     fontSize: 16,
-    color: "#007AFF",
+    color: "#DC2626",
     fontWeight: "600",
   },
 });

@@ -1320,6 +1320,8 @@ export default function FlightSearchScreen() {
     setIsSearching(true);
 
     try {
+      const currencyCode = currency ? "NGN" : "USD";
+
       const searchParams: FlightSearchParams = {
         origin: selectedFromCity.code || selectedFromCity.name,
         destination: selectedToCity.code || selectedToCity.name,
@@ -1327,7 +1329,7 @@ export default function FlightSearchScreen() {
         // children: travelerConfig.children,
         // infants: travelerConfig.infants,
         departureDate: formatDateForAPI(departureDate),
-        currency: currency ? "NGN" : "USD",
+        currency: currencyCode,
         ...(tripType === "roundtrip" && {
           returnDate: formatDateForAPI(returnDate),
         }),
@@ -1394,8 +1396,10 @@ export default function FlightSearchScreen() {
               <Text style={styles.currencyLabel}>Currency</Text>
               <View style={styles.currencyPickerWrapper}>
                 <Picker
-                  selectedValue={currency}
-                  onValueChange={(value) => dispatch(setCurrency(value))}
+                  selectedValue={currency ? "NGN" : "USD"}
+                  onValueChange={(value) =>
+                    dispatch(setCurrency(value === "NGN"))
+                  }
                   style={styles.picker}
                   mode="dropdown"
                 >
@@ -1477,7 +1481,7 @@ export default function FlightSearchScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.swapButton} onPress={swapCities}>
-              <Ionicons name="swap-vertical" size={20} color="#007AFF" />
+              <Ionicons name="swap-vertical" size={20} color="#DC2626" />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -1706,7 +1710,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   tripTypeSelected: {
-    backgroundColor: "#007AFF",
+    // backgroundColor: "#007AFF",
+    backgroundColor: "#DC2626",
   },
   tripTypeText: {
     fontSize: 14,
@@ -1754,7 +1759,7 @@ const styles = StyleSheet.create({
   },
   swapButton: {
     alignSelf: "center",
-    backgroundColor: "#e3f2fd",
+    backgroundColor: "#fde3e3",
     borderRadius: 20,
     padding: 10,
     marginVertical: 8,
@@ -1789,7 +1794,8 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   searchButton: {
-    backgroundColor: "#007AFF",
+    // backgroundColor: "#007AFF",
+    backgroundColor: "#DC2626",
     borderRadius: 12,
     paddingVertical: 16,
     flexDirection: "row",

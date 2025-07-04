@@ -123,7 +123,7 @@ export default function HotelsScreen() {
         name: "Paris",
         country: "France",
         image:
-          "https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=400",
+          "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400",
         hotels: "2,847 hotels",
       },
       {

@@ -104,7 +104,7 @@ export default function PaymentWebViewScreen() {
       {/* Loading Indicator */}
       {loading && (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color="#d32f2f" />
           <Text style={styles.loadingText}>Loading secure payment...</Text>
         </View>
       )}
@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   header: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#d32f2f",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   button: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#d32f2f",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
