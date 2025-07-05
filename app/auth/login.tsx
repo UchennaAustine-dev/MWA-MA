@@ -5,6 +5,9 @@ import React, { useState } from "react";
 import {
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -60,101 +63,117 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.outer}>
-      <View style={styles.container}>
-        <Image
-          source={require("../../assets/images/Manwhit-Logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: "#fff" }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
+    >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.outer}>
+          <View style={styles.container}>
+            <Image
+              source={require("../../assets/images/Manwhit-Logo.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
 
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>
-          Login to manage your bookings, track your trips, and access exclusive
-          travel deals.
-        </Text>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>
+              Login to manage your bookings, track your trips, and access
+              exclusive travel deals.
+            </Text>
 
-        {/* Email Label + Input */}
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={setEmail}
-            style={styles.input}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
-
-        {/* Password Label + Input */}
-        {showPasswordInput && (
-          <>
+            {/* Email Label + Input */}
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
-              <View style={styles.passwordWrapper}>
-                <TextInput
-                  placeholder="Enter your password"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  style={styles.passwordInput}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPassword((prev) => !prev)}
-                >
-                  <Ionicons
-                    name={showPassword ? "eye-off" : "eye"}
-                    size={22}
-                    color="#777"
-                  />
-                </TouchableOpacity>
-              </View>
+              <Text style={styles.label}>Email</Text>
+              <TextInput
+                placeholder="Enter your email"
+                value={email}
+                onChangeText={setEmail}
+                style={styles.input}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                textContentType="emailAddress"
+              />
             </View>
 
+            {/* Password Label + Input */}
+            {showPasswordInput && (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Password</Text>
+                  <View style={styles.passwordWrapper}>
+                    <TextInput
+                      placeholder="Enter your password"
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry={!showPassword}
+                      style={styles.passwordInput}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      textContentType="password"
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword((prev) => !prev)}
+                    >
+                      <Ionicons
+                        name={showPassword ? "eye-off" : "eye"}
+                        size={22}
+                        color="#777"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <TouchableOpacity
+                  onPress={handleForgotPassword}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.forgotText}>Forgot Password?</Text>
+                </TouchableOpacity>
+              </>
+            )}
+
+            {/* Action Button */}
             <TouchableOpacity
-              onPress={handleForgotPassword}
-              activeOpacity={0.7}
+              style={[
+                styles.button,
+                ((showPasswordInput && !password) ||
+                  (!showPasswordInput && !email)) && { opacity: 0.6 },
+              ]}
+              onPress={showPasswordInput ? handleCheckPassword : handleLogin}
+              disabled={loading || (showPasswordInput ? !password : !email)}
+              activeOpacity={0.8}
             >
-              <Text style={styles.forgotText}>Forgot Password?</Text>
+              <Text style={styles.buttonText}>
+                {loading
+                  ? showPasswordInput
+                    ? "Logging in..."
+                    : "Checking..."
+                  : showPasswordInput
+                  ? "Login"
+                  : "Next"}
+              </Text>
             </TouchableOpacity>
-          </>
-        )}
 
-        {/* Action Button */}
-        <TouchableOpacity
-          style={[
-            styles.button,
-            ((showPasswordInput && !password) ||
-              (!showPasswordInput && !email)) && { opacity: 0.6 },
-          ]}
-          onPress={showPasswordInput ? handleCheckPassword : handleLogin}
-          disabled={loading || (showPasswordInput ? !password : !email)}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.buttonText}>
-            {loading
-              ? showPasswordInput
-                ? "Logging in..."
-                : "Checking..."
-              : showPasswordInput
-              ? "Login"
-              : "Next"}
-          </Text>
-        </TouchableOpacity>
-
-        <Text style={styles.bottomText}>
-          Don't have an account?
-          <Text
-            style={styles.link}
-            onPress={() => router.replace("/auth/register")}
-          >
-            {" "}
-            Register
-          </Text>
-        </Text>
-      </View>
-    </View>
+            <Text style={styles.bottomText}>
+              Don't have an account?
+              <Text
+                style={styles.link}
+                onPress={() => router.replace("/auth/register")}
+              >
+                {" "}
+                Register
+              </Text>
+            </Text>
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

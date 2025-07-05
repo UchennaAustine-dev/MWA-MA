@@ -3,6 +3,9 @@ import React, { useState } from "react";
 import {
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -39,94 +42,109 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View style={styles.outer}>
-      <View style={styles.container}>
-        {/* Logo */}
-        <Image
-          source={require("../../assets/images/Manwhit-Logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: "#E5E5E5" }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
+    >
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.outer}>
+          <View style={styles.container}>
+            {/* Logo */}
+            <Image
+              source={require("../../assets/images/Manwhit-Logo.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
 
-        {/* Title */}
-        <Text style={styles.title}>Create Account</Text>
+            {/* Title */}
+            <Text style={styles.title}>Create Account</Text>
 
-        {/* Subtitle */}
-        <Text style={styles.subtitle}>
-          Unlock easy flight bookings, personalized{"\n"}
-          travel deals, and quick access to all your{"\n"}
-          trips in one place.
-        </Text>
+            {/* Subtitle */}
+            <Text style={styles.subtitle}>
+              Unlock easy flight bookings, personalized{"\n"}
+              travel deals, and quick access to all your{"\n"}
+              trips in one place.
+            </Text>
 
-        {/* Email Input */}
-        <TextInput
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          style={styles.input}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
+            {/* Email Input */}
+            <TextInput
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              style={styles.input}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              textContentType="emailAddress"
+            />
 
-        {/* Checkbox Row */}
-        <View style={styles.checkboxRow}>
-          <TouchableOpacity
-            style={styles.checkbox}
-            onPress={() => setAgree(!agree)}
-            activeOpacity={0.8}
-          >
-            <View style={[styles.checkboxBox, agree && styles.checkboxChecked]}>
-              {agree && <View style={styles.checkboxDot} />}
+            {/* Checkbox Row */}
+            <View style={styles.checkboxRow}>
+              <TouchableOpacity
+                style={styles.checkbox}
+                onPress={() => setAgree(!agree)}
+                activeOpacity={0.8}
+              >
+                <View
+                  style={[styles.checkboxBox, agree && styles.checkboxChecked]}
+                >
+                  {agree && <View style={styles.checkboxDot} />}
+                </View>
+              </TouchableOpacity>
+              <Text style={styles.checkboxText}>
+                I agree with <Text style={styles.brand}>Manwhit Aroes</Text>
+                <Text> </Text>
+                <Text
+                  style={styles.link}
+                  onPress={() => {
+                    /* open terms link */
+                  }}
+                >
+                  Terms
+                </Text>
+                <Text> and </Text>
+                <Text
+                  style={styles.link}
+                  onPress={() => {
+                    /* open conditions link */
+                  }}
+                >
+                  Conditions
+                </Text>
+              </Text>
             </View>
-          </TouchableOpacity>
-          <Text style={styles.checkboxText}>
-            I agree with <Text style={styles.brand}>Manwhit Aroes</Text>
-            <Text> </Text>
-            <Text
-              style={styles.link}
-              onPress={() => {
-                /* open terms link */
-              }}
+
+            {/* Button */}
+            <TouchableOpacity
+              style={[styles.button, !agree && { opacity: 0.6 }]}
+              onPress={handleSubmit}
+              disabled={loading || !agree}
+              activeOpacity={0.8}
             >
-              Terms
+              <Text style={styles.buttonText}>
+                {loading ? "Creating..." : "Get Started"}
+              </Text>
+            </TouchableOpacity>
+
+            {/* Login Link */}
+            <Text style={styles.loginRow}>
+              Already have an account?
+              <Text
+                style={styles.loginLink}
+                onPress={() => router.replace("/auth/login")}
+              >
+                {" "}
+                Login
+              </Text>
             </Text>
-            <Text> and </Text>
-            <Text
-              style={styles.link}
-              onPress={() => {
-                /* open conditions link */
-              }}
-            >
-              Conditions
-            </Text>
-          </Text>
+          </View>
         </View>
-
-        {/* Button */}
-        <TouchableOpacity
-          style={[styles.button, !agree && { opacity: 0.6 }]}
-          onPress={handleSubmit}
-          disabled={loading || !agree}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? "Creating..." : "Get Started"}
-          </Text>
-        </TouchableOpacity>
-
-        {/* Login Link */}
-        <Text style={styles.loginRow}>
-          Already have an account?
-          <Text
-            style={styles.loginLink}
-            onPress={() => router.replace("/auth/login")}
-          >
-            {" "}
-            Login
-          </Text>
-        </Text>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

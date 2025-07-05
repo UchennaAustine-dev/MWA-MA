@@ -54,6 +54,7 @@ export default function FeaturedDestinations({
 const styles = StyleSheet.create({
   container: {
     marginTop: 32,
+    marginBottom: 32,
     paddingHorizontal: 20,
   },
   sectionTitle: {
