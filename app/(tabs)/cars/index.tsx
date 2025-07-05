@@ -25,8 +25,6 @@ export default function CarsScreen() {
     return "Good evening";
   };
 
-  // const pathname = usePathname();
-
   // Define your routes
   const routes = {
     rideBooking: "/ride-booking",
@@ -48,14 +46,17 @@ export default function CarsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        stickyHeaderIndices={[0]} // Make the header sticky (fixed)
+      >
         {/* Header */}
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>{getGreeting()},</Text>
             <Text style={styles.name}>{user?.firstName || "Guest"}</Text>
           </View>
-          <View style={styles.icons}>
+          {/* <View style={styles.icons}>
             <TouchableOpacity style={styles.iconButton}>
               <Ionicons
                 name="notifications-outline"
@@ -70,7 +71,7 @@ export default function CarsScreen() {
                 color="#111827"
               />
             </TouchableOpacity>
-          </View>
+          </View> */}
         </View>
 
         {/* Quick Actions */}
@@ -175,9 +176,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#FFFFFF", // opaque background to cover content beneath
     borderBottomWidth: 1,
     borderBottomColor: "#E5E7EB",
+    elevation: 4, // Android shadow
+    shadowColor: "#000", // iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    zIndex: 10, // ensure on top on iOS
   },
   greeting: {
     fontFamily: "RedHatDisplay-Regular",
@@ -312,7 +319,7 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
     backgroundColor: "#FFFFFF",
     marginTop: 8,
-    marginBottom: 20,
+    marginBottom: 50,
   },
   featuresList: {
     flexDirection: "row",

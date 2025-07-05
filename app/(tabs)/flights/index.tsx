@@ -515,6 +515,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    marginTop: 20,
   },
   headerLeft: {
     flex: 1,
@@ -548,16 +549,27 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     borderRadius: 8,
     backgroundColor: "#fff",
-    height: 44,
+    height: 50,
     justifyContent: "center",
-    // overflow: "hidden",
+    width: 160,
+    paddingHorizontal: 8,
+    zIndex: 1000,
+    elevation: 1000,
   },
+
   picker: {
-    height: 44,
+    height: 50,
     width: "100%",
     color: "#333",
     fontFamily: "RedHatDisplay-Regular",
+    lineHeight: 50,
   },
+
+  pickerItem: {
+    fontSize: 16,
+    paddingVertical: 8,
+  },
+
   headerActions: {
     flexDirection: "row",
     alignItems: "center",
