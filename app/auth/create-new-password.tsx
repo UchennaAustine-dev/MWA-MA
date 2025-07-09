@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import {
   Alert,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -11,9 +12,14 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { api } from "../../lib/api";
+
+const confirmPasswordRef = React.createRef<TextInput>();
+
 export default function CreateNewPasswordScreen() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -50,123 +56,155 @@ export default function CreateNewPasswordScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: "#fff" }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
-    >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.outer}>
-          <View style={styles.container}>
-            {/* Logo */}
-            <Image
-              source={require("../../assets/images/Manwhit-Logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-
-            <Text style={styles.title}>Create New Password</Text>
-            <Text style={styles.subtitle}>
-              Please enter your new password below to complete the reset
-              process.
-            </Text>
-
-            {/* Password Input */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>New Password</Text>
-              <View style={styles.passwordWrapper}>
-                <TextInput
-                  placeholder="Enter new password"
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  style={styles.passwordInput}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  textContentType="newPassword"
+    <SafeAreaView style={styles.safeArea}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 20}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.outer}>
+              <View style={styles.container}>
+                {/* Logo */}
+                <Image
+                  source={require("../../assets/images/Manwhit-Logo.png")}
+                  style={styles.logo}
+                  resizeMode="contain"
                 />
-                <TouchableOpacity onPress={() => setShowPassword((p) => !p)}>
-                  <Ionicons
-                    name={showPassword ? "eye-off" : "eye"}
-                    size={22}
-                    color="#777"
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
 
-            {/* Confirm Password Input */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Confirm Password</Text>
-              <View style={styles.passwordWrapper}>
-                <TextInput
-                  placeholder="Confirm new password"
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  secureTextEntry={!showConfirmPassword}
-                  style={styles.passwordInput}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  textContentType="password"
-                />
+                <Text style={styles.title}>Create New Password</Text>
+                <Text style={styles.subtitle}>
+                  Please enter your new password below to complete the reset
+                  process.
+                </Text>
+
+                {/* Password Input */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>New Password</Text>
+                  <View style={styles.passwordWrapper}>
+                    <TextInput
+                      placeholder="Enter new password"
+                      value={password}
+                      onChangeText={setPassword}
+                      secureTextEntry={!showPassword}
+                      style={styles.passwordInput}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      textContentType="newPassword"
+                      returnKeyType="next"
+                      onSubmitEditing={() =>
+                        confirmPasswordRef.current?.focus()
+                      }
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowPassword((p) => !p)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityLabel={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      accessible
+                    >
+                      <Ionicons
+                        name={showPassword ? "eye-off" : "eye"}
+                        size={22}
+                        color="#777"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Confirm Password Input */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Confirm Password</Text>
+                  <View style={styles.passwordWrapper}>
+                    <TextInput
+                      ref={confirmPasswordRef}
+                      placeholder="Confirm new password"
+                      value={confirmPassword}
+                      onChangeText={setConfirmPassword}
+                      secureTextEntry={!showConfirmPassword}
+                      style={styles.passwordInput}
+                      autoCapitalize="none"
+                      autoCorrect={false}
+                      textContentType="password"
+                      returnKeyType="done"
+                      onSubmitEditing={handleCreateNewPassword}
+                    />
+                    <TouchableOpacity
+                      onPress={() => setShowConfirmPassword((p) => !p)}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                      accessibilityLabel={
+                        showConfirmPassword ? "Hide password" : "Show password"
+                      }
+                      accessible
+                    >
+                      <Ionicons
+                        name={showConfirmPassword ? "eye-off" : "eye"}
+                        size={22}
+                        color="#777"
+                      />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                {/* Submit Button */}
                 <TouchableOpacity
-                  onPress={() => setShowConfirmPassword((p) => !p)}
+                  style={[
+                    styles.button,
+                    (!password ||
+                      !confirmPassword ||
+                      password !== confirmPassword) && { opacity: 0.6 },
+                  ]}
+                  onPress={handleCreateNewPassword}
+                  disabled={
+                    loading ||
+                    !password ||
+                    !confirmPassword ||
+                    password !== confirmPassword
+                  }
+                  activeOpacity={0.8}
                 >
-                  <Ionicons
-                    name={showConfirmPassword ? "eye-off" : "eye"}
-                    size={22}
-                    color="#777"
-                  />
+                  <Text style={styles.buttonText}>
+                    {loading ? "Updating..." : "Update Password"}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => router.replace("/auth/login")}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.linkText}>Back to Login</Text>
                 </TouchableOpacity>
               </View>
             </View>
-
-            {/* Submit Button */}
-            <TouchableOpacity
-              style={[
-                styles.button,
-                (!password ||
-                  !confirmPassword ||
-                  password !== confirmPassword) && { opacity: 0.6 },
-              ]}
-              onPress={handleCreateNewPassword}
-              disabled={
-                loading ||
-                !password ||
-                !confirmPassword ||
-                password !== confirmPassword
-              }
-              activeOpacity={0.8}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? "Updating..." : "Update Password"}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => router.replace("/auth/login")}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.linkText}>Back to Login</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  outer: {
+  safeArea: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  flex: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 24,
   },
-  container: {
+  outer: {
     backgroundColor: "#fff",
     paddingVertical: 32,
     paddingHorizontal: 20,
@@ -176,6 +214,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 3,
+  },
+  container: {
+    width: "100%",
+    alignItems: "center",
   },
   logo: {
     width: 90,

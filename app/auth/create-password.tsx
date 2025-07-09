@@ -1,12 +1,18 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Alert,
   Image,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { useSelector } from "react-redux";
@@ -17,20 +23,29 @@ export default function CreatePasswordScreen() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const userId = useSelector((state: RootState) => state.auth.newUserId);
+
+  const userId = useSelector((state: RootState) => state.user.newUserId);
   const router = useRouter();
 
+  // Refs for inputs to manage focus
+  const lastNameRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+
   const handleCreate = async () => {
-    if (!firstName || !lastName || !password) {
+    const trimmedFirstName = firstName.trim();
+    const trimmedLastName = lastName.trim();
+
+    if (!trimmedFirstName || !trimmedLastName || !password) {
       return Alert.alert("Validation", "All fields are required");
     }
 
     setLoading(true);
     try {
       await api.patch(`/account/${userId}/create-password`, {
-        firstName,
-        lastName,
+        firstName: trimmedFirstName,
+        lastName: trimmedLastName,
         password,
       });
       Alert.alert("Success", "Account created successfully");
@@ -46,98 +61,166 @@ export default function CreatePasswordScreen() {
   };
 
   return (
-    <View style={styles.outer}>
-      <View style={styles.container}>
-        {/* Logo */}
-        <Image
-          source={require("../../assets/images/Manwhit-Logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-
-        {/* Title */}
-        <Text style={styles.title}>Set Up Your Profile</Text>
-
-        {/* Subtitle */}
-        <Text style={styles.subtitle}>
-          Enter your details and create a password to complete your account
-          setup.
-        </Text>
-
-        {/* First Name */}
-        <TextInput
-          placeholder="First Name"
-          value={firstName}
-          onChangeText={setFirstName}
-          style={styles.input}
-        />
-
-        {/* Last Name */}
-        <TextInput
-          placeholder="Last Name"
-          value={lastName}
-          onChangeText={setLastName}
-          style={styles.input}
-        />
-
-        {/* Password */}
-        <TextInput
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          style={styles.input}
-          secureTextEntry
-        />
-
-        {/* Button */}
-        <TouchableOpacity
-          style={[
-            styles.button,
-            (!firstName || !lastName || !password) && { opacity: 0.6 },
-          ]}
-          onPress={handleCreate}
-          disabled={loading || !firstName || !lastName || !password}
-          activeOpacity={0.8}
+    <SafeAreaView style={styles.safeArea}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 20}
         >
-          <Text style={styles.buttonText}>
-            {loading ? "Creating..." : "Create Account"}
-          </Text>
-        </TouchableOpacity>
-
-        {/* Login Link */}
-        <Text style={styles.loginRow}>
-          Already have an account?
-          <Text
-            style={styles.loginLink}
-            onPress={() => router.replace("/auth/login")}
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            {" "}
-            Login
-          </Text>
-        </Text>
-      </View>
-    </View>
+            <View style={styles.outer}>
+              <View style={styles.container}>
+                {/* Logo */}
+                <Image
+                  source={require("../../assets/images/Manwhit-Logo.png")}
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+
+                {/* Title */}
+                <Text style={styles.title}>Set Up Your Profile</Text>
+
+                {/* Subtitle */}
+                <Text style={styles.subtitle}>
+                  Enter your details and create a password to complete your
+                  account setup.
+                </Text>
+
+                {/* First Name */}
+                <TextInput
+                  placeholder="First Name"
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  style={styles.input}
+                  autoCapitalize="words"
+                  returnKeyType="next"
+                  onSubmitEditing={() => lastNameRef.current?.focus()}
+                  blurOnSubmit={false}
+                />
+
+                {/* Last Name */}
+                <TextInput
+                  ref={lastNameRef}
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChangeText={setLastName}
+                  style={styles.input}
+                  autoCapitalize="words"
+                  returnKeyType="next"
+                  onSubmitEditing={() => passwordRef.current?.focus()}
+                  blurOnSubmit={false}
+                />
+
+                {/* Password with visibility toggle */}
+                <View style={styles.passwordWrapper}>
+                  <TextInput
+                    ref={passwordRef}
+                    placeholder="Password"
+                    value={password}
+                    onChangeText={setPassword}
+                    style={styles.passwordInput}
+                    secureTextEntry={!showPassword}
+                    returnKeyType="done"
+                    onSubmitEditing={handleCreate}
+                    autoCapitalize="none"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword((prev) => !prev)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    style={styles.eyeIcon}
+                    accessibilityLabel={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    accessible
+                  >
+                    <Ionicons
+                      name={showPassword ? "eye-off" : "eye"}
+                      size={24}
+                      color="#777"
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Button */}
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    (!firstName.trim() || !lastName.trim() || !password) && {
+                      opacity: 0.6,
+                    },
+                  ]}
+                  onPress={handleCreate}
+                  disabled={
+                    loading ||
+                    !firstName.trim() ||
+                    !lastName.trim() ||
+                    !password
+                  }
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.buttonText}>
+                    {loading ? "Creating..." : "Create Account"}
+                  </Text>
+                </TouchableOpacity>
+
+                {/* Login Link */}
+                <Text style={styles.loginRow}>
+                  Already have an account?
+                  <Text
+                    style={styles.loginLink}
+                    onPress={() => router.replace("/auth/login")}
+                  >
+                    {" "}
+                    Login
+                  </Text>
+                </Text>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </SafeAreaView>
   );
 }
 
+import { SafeAreaView } from "react-native-safe-area-context";
+
 const styles = StyleSheet.create({
-  outer: {
+  safeArea: {
     flex: 1,
     backgroundColor: "#E5E5E5",
+  },
+  flex: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 24,
   },
-  container: {
+  outer: {
+    width: "100%",
+    maxWidth: 400,
     backgroundColor: "#fff",
     borderRadius: 24,
     paddingVertical: 32,
     paddingHorizontal: 20,
-    width: "92%",
     alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 3,
+  },
+  container: {
+    width: "100%",
+    alignItems: "center",
   },
   logo: {
     width: 90,
@@ -147,7 +230,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     marginBottom: 8,
     color: "#111",
     textAlign: "center",
@@ -172,6 +255,27 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     fontFamily: "RedHatDisplay-Regular",
   },
+  passwordWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    backgroundColor: "#fff",
+    marginBottom: 20,
+  },
+  passwordInput: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 16,
+    fontFamily: "RedHatDisplay-Regular",
+    color: "black",
+  },
+  eyeIcon: {
+    paddingLeft: 10,
+  },
   button: {
     width: "100%",
     backgroundColor: "#FF3B30",
@@ -183,7 +287,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 18,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: "RedHatDisplay-Bold",
   },
   loginRow: {

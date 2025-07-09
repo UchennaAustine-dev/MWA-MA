@@ -3,13 +3,16 @@ import React, { useState } from "react";
 import {
   Alert,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
 import { api } from "../../lib/api";
@@ -44,85 +47,106 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: "#fff" }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
-    >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.outer}>
-          <View style={styles.container}>
-            {/* Logo */}
-            <Image
-              source={require("../../assets/images/Manwhit-Logo.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-
-            <Text style={styles.title}>Forgot Password</Text>
-            <Text style={styles.subtitle}>
-              Enter your email address below to receive password reset
-              instructions.
-            </Text>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                placeholder="Enter your email"
-                value={email}
-                onChangeText={setEmail}
-                style={styles.input}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                textContentType="emailAddress"
+    <SafeAreaView style={styles.safeArea}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 20}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.container}>
+              {/* Logo */}
+              <Image
+                source={require("../../assets/images/Manwhit-Logo.png")}
+                style={styles.logo}
+                resizeMode="contain"
               />
-            </View>
 
-            <TouchableOpacity
-              style={[styles.button, !email && { opacity: 0.6 }]}
-              onPress={handleResetPassword}
-              disabled={loading || !email}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.buttonText}>
-                {loading ? "Sending..." : "Reset Password"}
+              {/* Title */}
+              <Text style={styles.title}>Forgot Password</Text>
+
+              {/* Subtitle */}
+              <Text style={styles.subtitle}>
+                Enter your email address below to receive password reset
+                instructions.
               </Text>
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => router.replace("/auth/login")}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.linkText}>Back to Login</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+              {/* Email Input */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Email</Text>
+                <TextInput
+                  placeholder="Enter your email"
+                  value={email}
+                  onChangeText={setEmail}
+                  style={styles.input}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  textContentType="emailAddress"
+                  returnKeyType="done"
+                  onSubmitEditing={handleResetPassword}
+                />
+              </View>
+
+              {/* Reset Button */}
+              <TouchableOpacity
+                style={[styles.button, !email && { opacity: 0.6 }]}
+                onPress={handleResetPassword}
+                disabled={loading || !email.trim()}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.buttonText}>
+                  {loading ? "Sending..." : "Reset Password"}
+                </Text>
+              </TouchableOpacity>
+
+              {/* Back to Login */}
+              <TouchableOpacity
+                onPress={() => router.replace("/auth/login")}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.linkText}>Back to Login</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  outer: {
+  safeArea: {
     flex: 1,
     backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
+  },
+  flex: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center", // centers vertically when keyboard hidden
+    alignItems: "center", // centers horizontally
+    paddingHorizontal: 20,
+    paddingVertical: 24,
   },
   container: {
+    width: "100%",
+    maxWidth: 400,
     backgroundColor: "#fff",
     paddingVertical: 32,
     paddingHorizontal: 20,
-    width: "92%",
     alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 3,
+    // borderRadius: 16,
   },
   logo: {
     width: 90,
@@ -132,7 +156,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     marginBottom: 12,
     color: "#111",
     textAlign: "center",
@@ -178,13 +202,13 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 18,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     fontFamily: "RedHatDisplay-Bold",
   },
   linkText: {
     fontSize: 14,
     color: "#005ce6",
-    fontWeight: "bold",
+    fontWeight: "600",
     textAlign: "center",
     marginTop: 12,
     fontFamily: "Inter",

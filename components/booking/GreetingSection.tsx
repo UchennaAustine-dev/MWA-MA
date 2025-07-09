@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 28,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#000000",
     fontFamily: "RedHatDisplay-Bold",
   },

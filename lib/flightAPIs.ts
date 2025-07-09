@@ -34,6 +34,7 @@ export interface AirlineDetails {
   type?: string;
   businessName?: string;
   commonName?: string;
+  name?: string;
   country?: string;
 }
 

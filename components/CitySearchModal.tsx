@@ -502,8 +502,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
+    fontFamily: "RedHatDisplay-Bold", // Use bold font for titles
   },
   closeButton: {
     padding: 4,
@@ -524,6 +525,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     color: "#333",
+    fontFamily: "Inter", // Use Inter for inputs
   },
   loadingIcon: {
     marginLeft: 8,
@@ -539,6 +541,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666",
     marginBottom: 4,
+    fontFamily: "Inter",
   },
   selectedCity: {
     flexDirection: "row",
@@ -549,11 +552,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#333",
+    fontFamily: "RedHatDisplay-Bold",
+    marginBottom: 2,
   },
   selectedCityCode: {
     fontSize: 14,
     color: "#666",
     fontWeight: "500",
+    fontFamily: "RedHatDisplay-Regular",
   },
   list: {
     flex: 1,
@@ -577,16 +583,19 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
     marginBottom: 2,
+    fontFamily: "RedHatDisplay-Bold",
   },
   cityDetails: {
     fontSize: 14,
     color: "#666",
     marginBottom: 2,
+    fontFamily: "RedHatDisplay-Regular",
   },
   cityTimezone: {
     fontSize: 12,
     color: "#888",
     fontStyle: "italic",
+    fontFamily: "Inter",
   },
   cityCodeContainer: {
     alignItems: "center",
@@ -594,9 +603,10 @@ const styles = StyleSheet.create({
   },
   cityCode: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#007AFF",
+    fontWeight: "600",
+    color: "#d32f2f",
     marginBottom: 4,
+    fontFamily: "RedHatDisplay-Bold",
   },
   emptyContainer: {
     padding: 32,
@@ -605,5 +615,6 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: "#666",
+    fontFamily: "Inter",
   },
 });

@@ -365,7 +365,6 @@ import {
   Dimensions,
   FlatList,
   RefreshControl,
-  SafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
@@ -373,6 +372,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 import BookingCard from "../components/profile/BookingCard";
 import ErrorState from "../components/profile/ErrorState";

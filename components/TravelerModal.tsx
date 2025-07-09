@@ -118,11 +118,14 @@ export default function TravelerModal({
           ]}
           onPress={onDecrement}
           disabled={!canDecrement}
+          accessibilityRole="button"
+          accessibilityLabel={`Decrease ${title}`}
+          accessibilityState={{ disabled: !canDecrement }}
         >
           <Ionicons
             name="remove"
             size={20}
-            color={canDecrement ? "#007AFF" : "#ccc"}
+            color={canDecrement ? "#DC2626" : "#ccc"}
           />
         </TouchableOpacity>
         <Text style={styles.counterValue}>{count}</Text>
@@ -133,11 +136,14 @@ export default function TravelerModal({
           ]}
           onPress={onIncrement}
           disabled={getTotalTravelers() >= 9}
+          accessibilityRole="button"
+          accessibilityLabel={`Increase ${title}`}
+          accessibilityState={{ disabled: getTotalTravelers() >= 9 }}
         >
           <Ionicons
             name="add"
             size={20}
-            color={getTotalTravelers() >= 9 ? "#ccc" : "#007AFF"}
+            color={getTotalTravelers() >= 9 ? "#ccc" : "#DC2626"}
           />
         </TouchableOpacity>
       </View>
@@ -153,7 +159,12 @@ export default function TravelerModal({
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.title}>Passengers & Class</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+          <TouchableOpacity
+            onPress={onClose}
+            style={styles.closeButton}
+            accessibilityRole="button"
+            accessibilityLabel="Close modal"
+          >
             <Ionicons name="close" size={24} color="#333" />
           </TouchableOpacity>
         </View>
@@ -203,6 +214,11 @@ export default function TravelerModal({
                       styles.classButtonSelected,
                   ]}
                   onPress={() => updateCabinClass(cabinClass)}
+                  accessibilityRole="button"
+                  accessibilityState={{
+                    selected: travelerConfig.class === cabinClass,
+                  }}
+                  accessibilityLabel={`Select cabin class ${cabinClass}`}
                 >
                   <Text
                     style={[
@@ -220,7 +236,12 @@ export default function TravelerModal({
         </ScrollView>
 
         <View style={styles.footer}>
-          <TouchableOpacity style={styles.doneButton} onPress={onClose}>
+          <TouchableOpacity
+            style={styles.doneButton}
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel="Done and close modal"
+          >
             <Text style={styles.doneButtonText}>Done</Text>
           </TouchableOpacity>
         </View>
@@ -244,8 +265,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
+    fontFamily: "RedHatDisplay-Bold",
   },
   closeButton: {
     padding: 4,
@@ -258,14 +280,16 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
     marginBottom: 4,
+    fontFamily: "RedHatDisplay-Bold",
   },
   sectionSubtitle: {
     fontSize: 14,
     color: "#666",
     marginBottom: 16,
+    fontFamily: "RedHatDisplay-Regular",
   },
   counterRow: {
     flexDirection: "row",
@@ -283,10 +307,12 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#333",
     marginBottom: 2,
+    fontFamily: "RedHatDisplay-Bold",
   },
   counterSubtitle: {
     fontSize: 14,
     color: "#666",
+    fontFamily: "RedHatDisplay-Regular",
   },
   counterControls: {
     flexDirection: "row",
@@ -305,11 +331,12 @@ const styles = StyleSheet.create({
   },
   counterValue: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
     marginHorizontal: 16,
     minWidth: 20,
     textAlign: "center",
+    fontFamily: "RedHatDisplay-Bold",
   },
   classGrid: {
     flexDirection: "row",
@@ -327,15 +354,17 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   classButtonSelected: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#DC2626", // Changed to red
   },
   classButtonText: {
     fontSize: 14,
     fontWeight: "600",
     color: "#333",
+    fontFamily: "RedHatDisplay-Regular",
   },
   classButtonTextSelected: {
     color: "#fff",
+    fontFamily: "RedHatDisplay-Bold",
   },
   footer: {
     padding: 16,
@@ -343,7 +372,7 @@ const styles = StyleSheet.create({
     borderTopColor: "#eee",
   },
   doneButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#DC2626", // Changed to red
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: "center",
@@ -351,6 +380,7 @@ const styles = StyleSheet.create({
   doneButtonText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
+    fontFamily: "RedHatDisplay-Bold",
   },
 });

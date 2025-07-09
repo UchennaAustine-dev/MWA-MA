@@ -3,6 +3,7 @@ import {
   getUserCart,
   removeFlightFromCart,
 } from "@/lib/flightAPIs";
+import { clearCart, removeFromCart } from "@/redux/slices/cartSlice";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -10,15 +11,13 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-// import { clearCart, removeFromCart } from "../redux/slices/globalSlice";
-import { clearCart, removeFromCart } from "@/redux/slices/cartSlice";
 import type { AppDispatch, RootState } from "../redux/store";
 
 export default function CartScreen() {
@@ -26,115 +25,72 @@ export default function CartScreen() {
   const dispatch = useDispatch<AppDispatch>();
   const user = useSelector((state: RootState) => state.user.user);
 
-  const guestCart = useSelector((state: RootState) => state.cart.cartItems);
-
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [isEmptyingCart, setIsEmptyingCart] = useState(false);
 
-  // console.log("[Init] User:", user);
-  // console.log("[Init] Guest cart from Redux:", guestCart);
-
-  // Fetch cart data
   useEffect(() => {
     const fetchCartData = async () => {
       try {
         setLoading(true);
-        // console.log("[Cart] Fetching cart data...");
         if (user?.id) {
-          // Fetch from API for logged-in users
-          const userCart = await getUserCart(user?.id);
-          // console.log("[Cart] User cart from API:", userCart);
+          const userCart = await getUserCart(user.id);
           setCartItems(userCart);
-        } else {
-          // Use Redux state for guest users
-          setCartItems(guestCart);
-          // console.log("[Cart] Guest cart set from Redux:", guestCart);
         }
-      } catch (error) {
-        // console.error("[Cart] Error fetching cart:", error);
+      } catch {
         Alert.alert("Error", "Failed to load cart items");
       } finally {
         setLoading(false);
-        // console.log("[Cart] Done loading cart data.");
       }
     };
-
     fetchCartData();
-  }, [user?.id, guestCart]);
+  }, [user?.id]);
 
   const formatCurrency = (amount: any, currency = "NGN") => {
     const symbol = currency === "NGN" ? "₦" : "$";
-    const formatted = `${symbol}${Number(amount).toLocaleString()}`;
-    // console.log("[formatCurrency]", formatted);
-    return formatted;
+    return `${symbol}${Number(amount).toLocaleString()}`;
   };
 
-  const formatTime = (isoString: string) => {
-    const formatted = new Date(isoString).toLocaleTimeString([], {
+  const formatTime = (isoString: string) =>
+    new Date(isoString).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     });
-    console.log("[formatTime]", isoString, "->", formatted);
-    return formatted;
-  };
 
-  const formatDate = (isoString: string) => {
-    const formatted = new Date(isoString).toLocaleDateString([], {
+  const formatDate = (isoString: string) =>
+    new Date(isoString).toLocaleDateString([], {
       weekday: "short",
       month: "short",
       day: "numeric",
     });
-    // console.log("[formatDate]", isoString, "->", formatted);
-    return formatted;
-  };
 
   const getFlightData = (cartItem: any) => {
-    let result;
-    if (cartItem?.flightData?.flightData) {
-      result = cartItem.flightData.flightData;
-    } else if (cartItem?.flightData) {
-      result = cartItem.flightData;
-    } else {
-      result = cartItem;
-    }
-    // console.log("[getFlightData] For cartItem:", cartItem, "->", result);
-    return result;
+    if (cartItem?.flightData?.flightData) return cartItem.flightData.flightData;
+    if (cartItem?.flightData) return cartItem.flightData;
+    return cartItem;
   };
 
   const handleRemoveItem = async (cartId: string) => {
     try {
       setRemovingId(cartId);
-      // console.log("[RemoveItem] Removing cart item:", cartId);
-
       if (user?.id) {
-        // Remove from API for logged-in users
         await removeFlightFromCart(cartId);
         const updatedCart = await getUserCart(user.id);
         setCartItems(updatedCart);
-        // console.log(
-        //   "[RemoveItem] Updated user cart after removal:",
-        //   updatedCart
-        // );
       } else {
-        // Remove from Redux for guest users
         dispatch(removeFromCart(cartId));
         setCartItems((prev) => prev.filter((item) => item.id !== cartId));
-        // console.log("[RemoveItem] Updated guest cart after removal:", cartId);
       }
-
       Alert.alert("Success", "Flight removed from cart");
     } catch (error: any) {
       Alert.alert("Error", error.message || "Failed to remove item");
-      // console.error("[RemoveItem] Error:", error);
     } finally {
       setRemovingId(null);
-      // console.log("[RemoveItem] Done removing cart item:", cartId);
     }
   };
 
-  const handleEmptyCart = async () => {
+  const handleEmptyCart = () => {
     Alert.alert(
       "Empty Cart",
       "Are you sure you want to remove all items from your cart?",
@@ -146,25 +102,18 @@ export default function CartScreen() {
           onPress: async () => {
             try {
               setIsEmptyingCart(true);
-              // console.log("[EmptyCart] Emptying cart...");
-
               if (user?.id) {
                 await emptyUserFlightCart(user.id);
                 setCartItems([]);
-                // console.log("[EmptyCart] User cart emptied via API.");
               } else {
                 dispatch(clearCart());
                 setCartItems([]);
-                // console.log("[EmptyCart] Guest cart emptied via Redux.");
               }
-
               Alert.alert("Success", "Cart has been emptied");
             } catch (error: any) {
               Alert.alert("Error", error.message || "Failed to empty cart");
-              console.error("[EmptyCart] Error:", error);
             } finally {
               setIsEmptyingCart(false);
-              // console.log("[EmptyCart] Done emptying cart.");
             }
           },
         },
@@ -172,16 +121,13 @@ export default function CartScreen() {
     );
   };
 
-  const calculateTotal = () => {
-    const total = cartItems.reduce((total, item) => {
+  const calculateTotal = () =>
+    cartItems.reduce((total, item) => {
       const flightData = getFlightData(item);
       const price =
         flightData?.price?.total || flightData?.price?.grandTotal || 0;
       return total + Number(price);
     }, 0);
-    // console.log("[calculateTotal] Cart total:", total);
-    return total;
-  };
 
   const handleProceedToCheckout = () => {
     if (cartItems.length === 0) {
@@ -189,16 +135,13 @@ export default function CartScreen() {
         "Empty Cart",
         "Please add flights to your cart before proceeding"
       );
-      console.warn("[Checkout] Attempted with empty cart.");
       return;
     }
-    // console.log("[Checkout] Proceeding to traveler details...");
     router.push("/traveler-details");
   };
 
-  const renderCartItem = ({ item, index }: { item: any; index: number }) => {
+  const renderCartItem = ({ item }: { item: any }) => {
     const flightData = getFlightData(item);
-
     if (!flightData) {
       return (
         <View style={styles.cartItem}>
@@ -223,7 +166,6 @@ export default function CartScreen() {
 
     return (
       <View style={styles.cartItem}>
-        {/* Flight Route Header */}
         <View style={styles.routeHeader}>
           <View style={styles.routeInfo}>
             <Text style={styles.routeText}>
@@ -237,6 +179,8 @@ export default function CartScreen() {
             onPress={() => handleRemoveItem(item.id)}
             disabled={removingId === item.id}
             style={styles.removeIconButton}
+            accessibilityRole="button"
+            accessibilityLabel="Remove flight from cart"
           >
             {removingId === item.id ? (
               <ActivityIndicator size="small" color="#d32f2f" />
@@ -246,7 +190,6 @@ export default function CartScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Flight Details */}
         <View style={styles.flightDetails}>
           <View style={styles.timeContainer}>
             <Text style={styles.time}>
@@ -275,14 +218,12 @@ export default function CartScreen() {
           </View>
         </View>
 
-        {/* Stops Info */}
         <Text style={styles.stopsInfo}>
           {itinerary.segments.length === 1
             ? "Non-stop"
             : `${itinerary.segments.length - 1} stop(s)`}
         </Text>
 
-        {/* Price */}
         <View style={styles.priceContainer}>
           <Text style={styles.price}>{formatCurrency(price, currency)}</Text>
         </View>
@@ -292,9 +233,9 @@ export default function CartScreen() {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.safeArea}>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#007AFF" />
+          <ActivityIndicator size="large" color="#d32f2f" />
           <Text style={styles.loadingText}>Loading cart...</Text>
         </View>
       </SafeAreaView>
@@ -302,12 +243,13 @@ export default function CartScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Header */}
+    <SafeAreaView style={styles.safeArea}>
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => router.back()}
           style={styles.backButton}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
         >
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
@@ -317,6 +259,8 @@ export default function CartScreen() {
             onPress={handleEmptyCart}
             disabled={isEmptyingCart}
             style={styles.clearButton}
+            accessibilityRole="button"
+            accessibilityLabel="Clear all items from cart"
           >
             {isEmptyingCart ? (
               <ActivityIndicator size="small" color="#fff" />
@@ -337,13 +281,14 @@ export default function CartScreen() {
           <TouchableOpacity
             style={styles.searchButton}
             onPress={() => router.push("/flights")}
+            accessibilityRole="button"
+            accessibilityLabel="Search flights"
           >
             <Text style={styles.searchButtonText}>Search Flights</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <>
-          {/* Cart Items */}
           <FlatList
             data={cartItems}
             renderItem={renderCartItem}
@@ -352,7 +297,6 @@ export default function CartScreen() {
             showsVerticalScrollIndicator={false}
           />
 
-          {/* Summary Footer */}
           <View style={styles.summaryContainer}>
             <View style={styles.totalContainer}>
               <Text style={styles.totalLabel}>
@@ -372,6 +316,8 @@ export default function CartScreen() {
             <TouchableOpacity
               style={styles.checkoutButton}
               onPress={handleProceedToCheckout}
+              accessibilityRole="button"
+              accessibilityLabel="Proceed to traveler details"
             >
               <Text style={styles.checkoutButtonText}>
                 Proceed to Traveler Details
@@ -381,6 +327,8 @@ export default function CartScreen() {
             <TouchableOpacity
               style={styles.continueButton}
               onPress={() => router.push("/flights")}
+              accessibilityRole="button"
+              accessibilityLabel="Continue shopping"
             >
               <Text style={styles.continueButtonText}>Continue Shopping</Text>
             </TouchableOpacity>
@@ -392,9 +340,9 @@ export default function CartScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#fff",
   },
   header: {
     backgroundColor: "#d32f2f",
@@ -430,11 +378,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#fff",
   },
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: "#666",
+    color: "#000",
   },
   emptyContainer: {
     flex: 1,
@@ -445,18 +394,18 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#333",
+    color: "#000",
     marginTop: 16,
     marginBottom: 8,
   },
   emptyText: {
     fontSize: 16,
-    color: "#666",
+    color: "#333",
     textAlign: "center",
     marginBottom: 24,
   },
   searchButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#d32f2f",
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
@@ -492,11 +441,11 @@ const styles = StyleSheet.create({
   routeText: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
+    color: "#000",
   },
   dateText: {
     fontSize: 14,
-    color: "#666",
+    color: "#333",
     marginTop: 2,
   },
   removeIconButton: {
@@ -513,11 +462,11 @@ const styles = StyleSheet.create({
   time: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#333",
+    color: "#000",
   },
   airport: {
     fontSize: 12,
-    color: "#666",
+    color: "#333",
     marginTop: 2,
   },
   flightPath: {
@@ -530,7 +479,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#d32f2f",
   },
   line: {
     flex: 1,
@@ -540,12 +489,12 @@ const styles = StyleSheet.create({
   },
   duration: {
     fontSize: 12,
-    color: "#666",
+    color: "#333",
     paddingHorizontal: 8,
   },
   stopsInfo: {
     fontSize: 12,
-    color: "#666",
+    color: "#333",
     marginBottom: 8,
   },
   priceContainer: {
@@ -558,7 +507,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 14,
-    color: "#666",
+    color: "#333",
     textAlign: "center",
     marginBottom: 8,
   },
@@ -589,7 +538,7 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#333",
+    color: "#000",
   },
   totalAmount: {
     fontSize: 20,
@@ -597,7 +546,7 @@ const styles = StyleSheet.create({
     color: "#d32f2f",
   },
   checkoutButton: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#d32f2f",
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: "center",
@@ -609,13 +558,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   continueButton: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#000",
     paddingVertical: 16,
     borderRadius: 8,
     alignItems: "center",
   },
   continueButtonText: {
-    color: "#333",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "500",
   },

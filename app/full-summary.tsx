@@ -750,27 +750,24 @@
 //   },
 // });
 
-"use client";
-
 import { useRouter } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 
 // Components
 import BookingFooter from "../components/booking/BookingFooter";
 import BookingHeader from "../components/booking/BookingHeader";
 import FareSummarySection from "../components/booking/FareSummarySection";
-import GreetingSection from "../components/booking/GreetingSection";
 import PaymentModal from "../components/booking/PaymentModal";
 import PriceSummarySection from "../components/booking/PriceSummarySection";
 import ProgressSteps from "../components/booking/ProgressSteps";
@@ -785,15 +782,14 @@ import { initializePayment } from "../lib/paymentAPI";
 
 // Types
 import type { AppDispatch, RootState } from "../redux/store";
+import type { TravelAddon } from "../types/travelAddons";
 
 export default function FullSummaryScreen() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
-  // Load custom fonts
   const [fontsLoaded] = useCustomFonts();
 
-  // Redux state
   const user = useSelector((state: RootState) => state.user.user);
   const selectedFlight: any = useSelector(
     (state: RootState) => state.flight.selectedFlight
@@ -804,21 +800,13 @@ export default function FullSummaryScreen() {
   const traveler: any = useSelector(
     (state: RootState) => state.flight.traveler
   );
-  const guestUser = useSelector((state: RootState) => state.user.guestUser);
 
-  // Local state
-  const [travelerData, setTravelerData] = useState<any>(null);
+  const [travelerData, setTravelerData] = useState<any[]>([]);
   const [travelerLoading, setTravelerLoading] = useState(false);
-  const [flightOffer, setFlightOffer] = useState<any>(null);
   const [flightOfferLoading, setFlightOfferLoading] = useState(false);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  const travelerId = Array.isArray(traveler)
-    ? traveler[0]?.traveler?.id
-    : traveler?.traveler?.id;
-
-  // Addons hook
   const {
     addons,
     loading: addonsLoading,
@@ -830,39 +818,44 @@ export default function FullSummaryScreen() {
     refetch: refetchAddons,
   } = useTravelAddons(selectedOfferId);
 
-  // Hide splash screen when fonts are loaded
   useEffect(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
 
-  // Fetch traveler details
   useEffect(() => {
-    if (!travelerId) return;
+    if (!traveler || !Array.isArray(traveler) || traveler.length === 0) return;
 
     setTravelerLoading(true);
-    getTravelerById(travelerId)
-      .then((data: any) => setTravelerData(data.traveler || data))
-      .catch((err) => console.error("Failed to fetch traveler:", err))
-      .finally(() => setTravelerLoading(false));
-  }, [travelerId]);
 
-  // Fetch flight offer
+    Promise.all(
+      traveler.map((t: any) => getTravelerById(t.traveler?.id || t.id || ""))
+    )
+      .then((results) => {
+        setTravelerData(results.map((res) => res.traveler || res));
+      })
+      .catch((err) => {
+        console.error("Failed to fetch travelers:", err);
+        setTravelerData([]);
+      })
+      .finally(() => setTravelerLoading(false));
+  }, [traveler]);
+
   useEffect(() => {
     if (!selectedOfferId) return;
 
     setFlightOfferLoading(true);
     fetchFlightOfferById(selectedOfferId)
-      .then((data) => setFlightOffer(data))
-      .catch((err) => console.error("Failed to fetch flight offer:", err))
-      .finally(() => setFlightOfferLoading(false));
+      .then(() => setFlightOfferLoading(false))
+      .catch((err) => {
+        console.error("Failed to fetch flight offer:", err);
+        setFlightOfferLoading(false);
+      });
   }, [selectedOfferId]);
 
   const handlePayNow = () => {
-    if (!traveler || !selectedFlight) {
-      return;
-    }
+    if (!traveler || !selectedFlight) return;
     setShowPaymentModal(true);
   };
 
@@ -871,15 +864,14 @@ export default function FullSummaryScreen() {
       setShowPaymentModal(false);
       setIsProcessingPayment(true);
 
-      const paymentInitData = {
+      const paymentInitData: any = {
         amount: selectedFlight.price?.total,
         currency: selectedFlight?.price?.currency,
-        email: user?.email || guestUser?.email,
+        email: user?.email,
         bookingData: {
           flightOffer: selectedFlight,
-          travelers: [traveler],
+          travelers: travelerData,
           userId: user?.id,
-          guestUserId: guestUser?.guestUserId,
         },
       };
 
@@ -896,13 +888,12 @@ export default function FullSummaryScreen() {
     }
   };
 
-  // Show loading screen while fonts are loading
   if (!fontsLoaded || travelerLoading || flightOfferLoading) {
     return (
       <GestureHandlerRootView style={styles.container}>
         <SafeAreaView style={styles.container}>
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#DC2626" />
+            <ActivityIndicator size="large" color="#d32f2f" />
             <Text style={styles.loadingText}>Loading booking details...</Text>
           </View>
         </SafeAreaView>
@@ -916,13 +907,12 @@ export default function FullSummaryScreen() {
         <BookingHeader onBack={() => router.back()} />
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <GreetingSection user={user} guestUser={guestUser} />
+          {/* <GreetingSection user={user} /> */}
 
           <ProgressSteps currentStep={3} />
 
           <TravelAddonsSection
-            selectedOfferId={selectedOfferId}
-            addons={addons}
+            addons={addons as TravelAddon[]}
             addonsLoading={addonsLoading}
             addonsError={addonsError}
             selectedAddons={selectedAddons}
@@ -933,7 +923,7 @@ export default function FullSummaryScreen() {
 
           <FareSummarySection selectedFlight={selectedFlight} />
 
-          <TravelerInfoSection travelerData={travelerData} />
+          <TravelerInfoSection travelersData={travelerData} />
 
           <PriceSummarySection
             selectedFlight={selectedFlight}
@@ -969,7 +959,7 @@ export default function FullSummaryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: "#fff",
   },
   content: {
     flex: 1,
@@ -983,7 +973,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: "#666666",
+    color: "#666",
     fontFamily: "Inter",
   },
 });

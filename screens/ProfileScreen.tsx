@@ -2,12 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
   Alert,
-  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/slices/authSlice";
 import type { RootState } from "../redux/store";
@@ -72,76 +73,79 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#000000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Profile</Text>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Ionicons name="log-out-outline" size={24} color="#DC2626" />
-        </TouchableOpacity>
-      </View>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        {/* Header */}
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backButton}
+          >
+            <Ionicons name="arrow-back" size={24} color="#000" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Profile</Text>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Ionicons name="log-out-outline" size={24} color="#DC2626" />
+          </TouchableOpacity>
+        </View>
 
-      {/* User Info Card */}
-      <View style={styles.userCard}>
-        <View style={styles.avatarContainer}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {getInitials(user?.firstName, user?.lastName)}
+        {/* User Info Card */}
+        <View style={styles.userCard}>
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {getInitials(user?.firstName, user?.lastName)}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>
+              {user?.firstName} {user?.lastName}
             </Text>
+            <Text style={styles.userEmail}>{user?.email}</Text>
           </View>
         </View>
-        <View style={styles.userInfo}>
-          <Text style={styles.userName}>
-            {user?.firstName} {user?.lastName}
-          </Text>
-          <Text style={styles.userEmail}>{user?.email}</Text>
+
+        {/* Menu Items */}
+        <View style={styles.menuContainer}>
+          {menuItems.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.menuItem,
+                index === menuItems.length - 1 && styles.lastMenuItem,
+              ]}
+              onPress={item.onPress}
+              activeOpacity={0.7}
+            >
+              <View style={styles.menuItemLeft}>
+                <View
+                  style={[
+                    styles.menuIconContainer,
+                    { backgroundColor: `${item.color}20` }, // subtle translucent red
+                  ]}
+                >
+                  <Ionicons
+                    name={item.icon as any}
+                    size={24}
+                    color={item.color}
+                  />
+                </View>
+                <View style={styles.menuItemText}>
+                  <Text style={styles.menuItemTitle}>{item.title}</Text>
+                  <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={20} color="#999" />
+            </TouchableOpacity>
+          ))}
         </View>
-      </View>
 
-      {/* Menu Items */}
-      <View style={styles.menuContainer}>
-        {menuItems.map((item, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.menuItem,
-              index === menuItems.length - 1 && styles.lastMenuItem,
-            ]}
-            onPress={item.onPress}
-          >
-            <View style={styles.menuItemLeft}>
-              <View
-                style={[
-                  styles.menuIconContainer,
-                  { backgroundColor: `${item.color}15` },
-                ]}
-              >
-                <Ionicons
-                  name={item.icon as any}
-                  size={24}
-                  color={item.color}
-                />
-              </View>
-              <View style={styles.menuItemText}>
-                <Text style={styles.menuItemTitle}>{item.title}</Text>
-                <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#CCCCCC" />
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {/* App Info */}
-      <View style={styles.appInfo}>
-        <Text style={styles.appInfoText}>Manwhit Aroes v1.0.0</Text>
-        <Text style={styles.appInfoText}>© 2024 Manwhit Aroes</Text>
-      </View>
+        {/* App Info */}
+        <View style={styles.appInfo}>
+          <Text style={styles.appInfoText}>Manwhit Aroes v1.0.0</Text>
+          <Text style={styles.appInfoText}>© 2024 Manwhit Aroes</Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -149,7 +153,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F9FA",
+    backgroundColor: "#fff",
   },
   header: {
     flexDirection: "row",
@@ -157,80 +161,91 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: "#eee",
   },
   backButton: {
     padding: 8,
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    color: "#000000",
+    color: "#000",
+    flex: 1,
+    textAlign: "center",
+    marginRight: 40, // to balance the logout button width
   },
   logoutButton: {
     padding: 8,
   },
   userCard: {
-    backgroundColor: "#FFFFFF",
-    margin: 20,
+    backgroundColor: "#fff",
+    marginHorizontal: 20,
     borderRadius: 16,
-    padding: 24,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
     alignItems: "center",
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 12,
+    elevation: 6,
+    marginTop: 24,
+    marginBottom: 32,
   },
   avatarContainer: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     backgroundColor: "#DC2626",
     justifyContent: "center",
     alignItems: "center",
+    shadowColor: "#d32f2f",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 8,
   },
   avatarText: {
-    fontSize: 24,
+    fontSize: 36,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: "#fff",
   },
   userInfo: {
     alignItems: "center",
   },
   userName: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#000000",
-    marginBottom: 4,
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#000",
+    marginBottom: 6,
   },
   userEmail: {
     fontSize: 16,
-    color: "#666666",
+    color: "#666",
   },
   menuContainer: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#fff",
     marginHorizontal: 20,
     borderRadius: 16,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 12,
+    elevation: 6,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingVertical: 18,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F0F0",
+    borderBottomColor: "#eee",
   },
   lastMenuItem: {
     borderBottomWidth: 0,
@@ -241,9 +256,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
@@ -252,14 +267,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuItemTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#000000",
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#000",
     marginBottom: 2,
   },
   menuItemSubtitle: {
     fontSize: 14,
-    color: "#666666",
+    color: "#666",
   },
   appInfo: {
     alignItems: "center",
@@ -267,7 +282,7 @@ const styles = StyleSheet.create({
   },
   appInfoText: {
     fontSize: 12,
-    color: "#999999",
+    color: "#999",
     marginBottom: 4,
   },
 });
