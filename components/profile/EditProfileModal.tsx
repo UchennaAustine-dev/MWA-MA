@@ -1,9 +1,3 @@
-"use client";
-
-/**
- * Edit Profile Modal Component - Fixed form visibility issue
- * Slides in from bottom with comprehensive form to edit user travel information
- */
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from "@react-native-picker/picker";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -500,8 +494,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
+    fontFamily: "RedHatDisplay-Bold",
   },
   placeholder: {
     width: 40,
@@ -527,6 +522,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#DC2626",
     lineHeight: 20,
+    fontFamily: "Inter",
   },
   form: {
     paddingBottom: 20,
@@ -552,6 +548,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#000000",
     marginBottom: 8,
+    fontFamily: "RedHatDisplay-Bold",
   },
   input: {
     borderWidth: 1,
@@ -563,6 +560,7 @@ const styles = StyleSheet.create({
     color: "#000000",
     backgroundColor: "#FFFFFF",
     minHeight: 50,
+    fontFamily: "RedHatDisplay-Regular",
   },
   readOnlyInput: {
     backgroundColor: "#F8F9FA",
@@ -597,6 +595,7 @@ const styles = StyleSheet.create({
   pickerItem: {
     fontSize: 16,
     color: "#000000",
+    fontFamily: "RedHatDisplay-Regular",
   },
   footer: {
     paddingHorizontal: 20,
@@ -627,6 +626,7 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
+    fontFamily: "RedHatDisplay-Bold",
   },
 });

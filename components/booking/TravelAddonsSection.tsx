@@ -69,6 +69,7 @@ export default function TravelAddonsSection({
           />
         )}
         ItemSeparatorComponent={() => <View style={{ height: 16 }} />}
+        scrollEnabled={false} // Disable internal scrolling to avoid nested scroll issues
       />
     </View>
   );
@@ -140,9 +141,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 22,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000",
     marginBottom: 20,
+    fontFamily: "RedHatDisplay-Bold",
   },
   loadingContainer: {
     flexDirection: "row",
@@ -195,21 +197,23 @@ const styles = StyleSheet.create({
     borderColor: "#d32f2f",
   },
   iconContainer: {
-    alignSelf: "center",
     marginBottom: 12,
+    // Removed alignSelf: 'center' for left alignment
   },
   title: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: "600",
     color: "#000",
-    textAlign: "center",
+    textAlign: "left", // Left aligned
     marginBottom: 8,
+    fontFamily: "RedHatDisplay-Bold",
   },
   description: {
     fontSize: 14,
     color: "#333",
-    textAlign: "center",
+    textAlign: "left", // Left aligned
     marginBottom: 16,
+    fontFamily: "Inter",
   },
   footer: {
     flexDirection: "row",
@@ -218,8 +222,9 @@ const styles = StyleSheet.create({
   },
   price: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: "600",
     color: "#d32f2f",
+    fontFamily: "RedHatDisplay-Bold",
   },
   addButton: {
     backgroundColor: "#d32f2f",

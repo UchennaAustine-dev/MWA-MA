@@ -326,7 +326,6 @@ export default function TravelerDetailsScreen() {
     setShowExpiryPicker(null);
   };
 
-  // --- UI starts here ---
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -345,7 +344,6 @@ export default function TravelerDetailsScreen() {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Billing Information Form */}
         {!billingFormSubmitted && (
           <View style={styles.formSection}>
             <Text style={styles.sectionTitle}>Billing Information</Text>
@@ -400,9 +398,9 @@ export default function TravelerDetailsScreen() {
                 <Picker.Item label="Select Nationality" value="" />
                 {countries.map((country: any) => (
                   <Picker.Item
-                    key={country.code}
-                    label={`${country.name} (${country.code})`}
-                    value={country.code}
+                    key={country.iso2}
+                    label={`${country.name} (${country.iso2})`}
+                    value={country.iso2}
                   />
                 ))}
               </Picker>
@@ -416,12 +414,14 @@ export default function TravelerDetailsScreen() {
           </View>
         )}
 
-        {/* Traveler Form */}
         {billingFormSubmitted && (
           <View style={styles.formSection}>
             <Text style={styles.sectionTitle}>Traveler Details</Text>
             {travelers.map((traveler, idx) => (
-              <View key={idx} style={styles.travelerForm}>
+              <View
+                key={`${traveler.passportNumber || idx}-${idx}`}
+                style={styles.travelerForm}
+              >
                 <Text style={styles.travelerTitle}>Traveler {idx + 1}</Text>
                 <Text style={styles.label}>First Name</Text>
                 <TextInput
@@ -514,9 +514,9 @@ export default function TravelerDetailsScreen() {
                     <Picker.Item label="Select Nationality" value="" />
                     {countries.map((country: any) => (
                       <Picker.Item
-                        key={country.code}
-                        label={`${country.name} (${country.code})`}
-                        value={country.code}
+                        key={country.iso2}
+                        label={`${country.name} (${country.iso2})`}
+                        value={country.iso2}
                       />
                     ))}
                   </Picker>
@@ -535,9 +535,9 @@ export default function TravelerDetailsScreen() {
                     <Picker.Item label="Select Country" value="" />
                     {countries.map((country: any) => (
                       <Picker.Item
-                        key={country.code}
-                        label={`${country.name} (${country.code})`}
-                        value={country.code}
+                        key={country.iso2}
+                        label={`${country.name} (${country.iso2})`}
+                        value={country.iso2}
                       />
                     ))}
                   </Picker>
@@ -555,15 +555,20 @@ export default function TravelerDetailsScreen() {
                   style={styles.input}
                   value={traveler.passportNumber}
                   maxLength={9}
-                  onChangeText={(text) =>
-                    updateTraveler(
-                      idx,
-                      "passportNumber",
-                      text.replace(/[^a-zA-Z0-9]/g, "").slice(0, 9)
-                    )
-                  }
+                  keyboardType="default" // or "ascii-capable" on iOS
+                  autoCorrect={false}
+                  autoCapitalize="characters"
+                  importantForAutofill="no"
+                  onChangeText={(text) => {
+                    const sanitized = text
+                      .replace(/[^a-zA-Z0-9]/g, "")
+                      .toUpperCase()
+                      .slice(0, 9);
+                    updateTraveler(idx, "passportNumber", sanitized);
+                  }}
                   placeholder="Enter Passport Number (max 9 chars)"
                 />
+
                 <Text style={styles.inputHint}>Maximum 9 characters</Text>
                 <Text style={styles.label}>Passport Expiry</Text>
                 <TouchableOpacity
@@ -639,11 +644,12 @@ const styles = StyleSheet.create({
   backButton: { padding: 8 },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#fff",
     flex: 1,
     textAlign: "center",
     marginRight: 40,
+    fontFamily: "RedHatDisplay-Bold",
   },
   content: { flex: 1 },
   formSection: {
@@ -660,9 +666,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#d32f2f",
     marginBottom: 12,
+    fontFamily: "RedHatDisplay-Bold",
   },
   travelerForm: {
     marginBottom: 28,
@@ -672,9 +679,10 @@ const styles = StyleSheet.create({
   },
   travelerTitle: {
     fontSize: 15,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000",
     marginBottom: 8,
+    fontFamily: "RedHatDisplay-Bold",
   },
   input: {
     backgroundColor: "#f5f5f5",
@@ -695,6 +703,7 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 4,
     marginTop: 8,
+    fontFamily: "RedHatDisplay-Regular",
   },
   saveButton: {
     backgroundColor: "#d32f2f",
@@ -708,6 +717,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 15,
+    fontFamily: "RedHatDisplay-Bold",
   },
   genderRow: {
     flexDirection: "row",

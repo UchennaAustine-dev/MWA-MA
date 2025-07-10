@@ -1044,7 +1044,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     marginTop: 4,
     fontFamily: "RedHatDisplay-Bold",
@@ -1073,7 +1073,7 @@ const styles = StyleSheet.create({
   },
   resultsTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     marginBottom: 4,
     fontFamily: "RedHatDisplay-Bold",
@@ -1127,7 +1127,7 @@ const styles = StyleSheet.create({
   },
   noResultsTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     marginTop: 16,
     marginBottom: 8,
@@ -1150,7 +1150,7 @@ const styles = StyleSheet.create({
   clearFiltersText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     fontFamily: "RedHatDisplay-Bold",
   },
   emptyState: {
@@ -1167,7 +1167,7 @@ const styles = StyleSheet.create({
   },
   emptyStateTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     marginTop: 16,
     marginBottom: 8,
@@ -1194,10 +1194,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 8,
+    marginBottom: 45,
   },
   welcomeTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     marginTop: 20,
     marginBottom: 12,

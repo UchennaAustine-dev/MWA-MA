@@ -755,7 +755,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  ScrollView,
+  FlatList,
   StyleSheet,
   Text,
   View,
@@ -901,16 +901,25 @@ export default function FullSummaryScreen() {
     );
   }
 
-  return (
-    <GestureHandlerRootView style={styles.container}>
-      <SafeAreaView style={styles.container}>
-        <BookingHeader onBack={() => router.back()} />
+  // Compose list data with keys and types for FlatList rendering
+  const listData = [
+    { key: "progress", type: "header" },
+    { key: "addons", type: "addons" },
+    { key: "fare_summary", type: "fare" },
+    ...travelerData.map((traveler, index) => ({
+      key: `traveler-${index}`,
+      type: "traveler",
+      traveler,
+    })),
+    { key: "price_summary", type: "price" },
+  ];
 
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          {/* <GreetingSection user={user} /> */}
-
-          <ProgressSteps currentStep={3} />
-
+  const renderItem = ({ item }: { item: any }) => {
+    switch (item.type) {
+      case "header":
+        return <ProgressSteps currentStep={3} />;
+      case "addons":
+        return (
           <TravelAddonsSection
             addons={addons as TravelAddon[]}
             addonsLoading={addonsLoading}
@@ -920,18 +929,37 @@ export default function FullSummaryScreen() {
             toggleAddon={toggleAddon}
             refetchAddons={refetchAddons}
           />
-
-          <FareSummarySection selectedFlight={selectedFlight} />
-
-          <TravelerInfoSection travelersData={travelerData} />
-
+        );
+      case "fare":
+        return <FareSummarySection selectedFlight={selectedFlight} />;
+      case "traveler":
+        return <TravelerInfoSection travelersData={[item.traveler]} />;
+      case "price":
+        return (
           <PriceSummarySection
             selectedFlight={selectedFlight}
             selectedAddons={selectedAddons}
             getSelectedAddonsTotal={getSelectedAddonsTotal}
             traveler={traveler}
           />
-        </ScrollView>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <GestureHandlerRootView style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        <BookingHeader onBack={() => router.back()} />
+
+        <FlatList
+          data={listData}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.key}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+        />
 
         <BookingFooter
           onPayNow={handlePayNow}
@@ -962,8 +990,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   content: {
-    flex: 1,
     paddingHorizontal: 16,
+    paddingBottom: 20,
   },
   loadingContainer: {
     flex: 1,

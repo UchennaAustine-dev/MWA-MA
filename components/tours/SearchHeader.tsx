@@ -118,10 +118,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     textAlign: "center",
     marginBottom: 8,
+    fontFamily: "RedHatDisplay-Bold",
   },
   titleAccent: {
     color: "#DC2626",
@@ -131,6 +132,7 @@ const styles = StyleSheet.create({
     color: "#666666",
     textAlign: "center",
     lineHeight: 24,
+    fontFamily: "RedHatDisplay-Regular",
   },
   searchContainer: {
     flexDirection: "row",
@@ -158,6 +160,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
+    fontFamily: "Inter",
     color: "#000000",
     paddingVertical: 16,
   },

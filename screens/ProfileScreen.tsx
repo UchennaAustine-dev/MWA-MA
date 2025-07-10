@@ -13,6 +13,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/slices/authSlice";
 import type { RootState } from "../redux/store";
 
+const HEADER_HEIGHT = 70;
+
 export default function ProfileScreen() {
   const router = useRouter();
   const dispatch = useDispatch();
@@ -73,21 +75,24 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="#000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Profile</Text>
-          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-            <Ionicons name="log-out-outline" size={24} color="#DC2626" />
-          </TouchableOpacity>
-        </View>
+      {/* Fixed Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>User Profile</Text>
+        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+          <Ionicons name="log-out-outline" size={24} color="#DC2626" />
+        </TouchableOpacity>
+      </View>
 
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingTop: HEADER_HEIGHT }}
+        showsVerticalScrollIndicator={false}
+      >
         {/* User Info Card */}
         <View style={styles.userCard}>
           <View style={styles.avatarContainer}>
@@ -121,7 +126,7 @@ export default function ProfileScreen() {
                 <View
                   style={[
                     styles.menuIconContainer,
-                    { backgroundColor: `${item.color}20` }, // subtle translucent red
+                    { backgroundColor: `${item.color}20` },
                   ]}
                 >
                   <Ionicons
@@ -164,17 +169,26 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    width: "100%",
+    height: HEADER_HEIGHT,
+    marginTop: 32,
   },
   backButton: {
     padding: 8,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000",
     flex: 1,
     textAlign: "center",
-    marginRight: 40, // to balance the logout button width
+    marginRight: 40,
+    fontFamily: "RedHatDisplay-Bold",
   },
   logoutButton: {
     padding: 8,
@@ -212,21 +226,24 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontSize: 36,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#fff",
+    fontFamily: "RedHatDisplay-Bold",
   },
   userInfo: {
     alignItems: "center",
   },
   userName: {
     fontSize: 24,
-    fontWeight: "700",
+    fontWeight: "600",
     color: "#000",
     marginBottom: 6,
+    fontFamily: "RedHatDisplay-Bold",
   },
   userEmail: {
     fontSize: 16,
     color: "#666",
+    fontFamily: "RedHatDisplay-Regular",
   },
   menuContainer: {
     backgroundColor: "#fff",
@@ -268,13 +285,15 @@ const styles = StyleSheet.create({
   },
   menuItemTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: "600",
     color: "#000",
     marginBottom: 2,
+    fontFamily: "RedHatDisplay-Bold",
   },
   menuItemSubtitle: {
     fontSize: 14,
     color: "#666",
+    fontFamily: "RedHatDisplay-Regular",
   },
   appInfo: {
     alignItems: "center",

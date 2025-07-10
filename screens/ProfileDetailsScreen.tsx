@@ -1,7 +1,3 @@
-/**
- * Enhanced Profile Details Screen
- * Displays and allows editing of user personal information with improved UX
- */
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
@@ -13,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context"; // Correct import
 import { useSelector } from "react-redux";
 import EditProfileModal from "../components/profile/EditProfileModal";
 import ErrorState from "../components/profile/ErrorState";
@@ -21,6 +17,8 @@ import LoadingSpinner from "../components/profile/LoadingSpinner";
 import { useUserData } from "../hooks/useUserData";
 import type { UserData } from "../lib/userAPI";
 import type { RootState } from "../redux/store";
+
+const HEADER_HEIGHT = 75;
 
 export default function ProfileDetailsScreen() {
   const router = useRouter();
@@ -32,7 +30,6 @@ export default function ProfileDetailsScreen() {
 
   const editedData = useMemo(() => {
     if (!userData) return null;
-
     return {
       firstName: userData.firstName || "",
       lastName: userData.lastName || "",
@@ -54,7 +51,7 @@ export default function ProfileDetailsScreen() {
 
   const handleSaveUserData = useCallback(
     (newData: UserData) => {
-      refetch(); // Just refresh data from server
+      refetch();
     },
     [refetch]
   );
@@ -67,7 +64,6 @@ export default function ProfileDetailsScreen() {
 
   const completionPercentage = useMemo(() => {
     if (!editedData) return 0;
-
     const fields = [
       editedData.firstName,
       editedData.lastName,
@@ -78,26 +74,36 @@ export default function ProfileDetailsScreen() {
       editedData.passportNumber,
       editedData.passportExpiry,
     ];
-
     const filledFields = fields.filter(
       (field) => field && field.trim() !== ""
     ).length;
     return Math.round((filledFields / fields.length) * 100);
   }, [editedData]);
 
+  const Header = (
+    <View style={styles.header}>
+      <TouchableOpacity
+        onPress={() => router.back()}
+        style={styles.backButton}
+        activeOpacity={0.7}
+      >
+        <Ionicons name="arrow-back" size={24} color="#000" />
+      </TouchableOpacity>
+      <Text style={styles.headerTitle}>Personal Information</Text>
+      <TouchableOpacity
+        onPress={() => setShowEditModal(true)}
+        style={styles.editButton}
+        activeOpacity={0.7}
+      >
+        <Ionicons name="create-outline" size={24} color="#DC2626" />
+      </TouchableOpacity>
+    </View>
+  );
+
   if (isLoading) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="#000000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Personal Information</Text>
-          <View style={styles.placeholder} />
-        </View>
+        {Header}
         <LoadingSpinner message="Loading profile..." />
       </SafeAreaView>
     );
@@ -106,16 +112,7 @@ export default function ProfileDetailsScreen() {
   if (error) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="#000000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Personal Information</Text>
-          <View style={styles.placeholder} />
-        </View>
+        {Header}
         <ErrorState
           title="Error Loading Profile"
           message={error}
@@ -128,16 +125,7 @@ export default function ProfileDetailsScreen() {
   if (!editedData) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            style={styles.backButton}
-          >
-            <Ionicons name="arrow-back" size={24} color="#000000" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Personal Information</Text>
-          <View style={styles.placeholder} />
-        </View>
+        {Header}
         <ErrorState
           title="No Profile Data"
           message="No user data found."
@@ -149,22 +137,8 @@ export default function ProfileDetailsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#000000" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Personal Information</Text>
-        <TouchableOpacity
-          onPress={() => setShowEditModal(true)}
-          style={styles.editButton}
-        >
-          <Ionicons name="create-outline" size={24} color="#DC2626" />
-        </TouchableOpacity>
-      </View>
+      {/* Fixed Header */}
+      <View style={styles.fixedHeader}>{Header}</View>
 
       <ScrollView
         style={styles.content}
@@ -176,8 +150,12 @@ export default function ProfileDetailsScreen() {
             colors={["#DC2626"]}
           />
         }
+        contentContainerStyle={{
+          paddingTop: HEADER_HEIGHT + 16,
+          paddingBottom: 32,
+        }}
       >
-        {/* User Info Header with completion status */}
+        {/* User Info Header */}
         <View style={styles.userHeader}>
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
@@ -210,7 +188,7 @@ export default function ProfileDetailsScreen() {
           </View>
         </View>
 
-        {/* Information Grid */}
+        {/* Information Card */}
         <View style={styles.infoCard}>
           <View style={styles.cardHeader}>
             <View>
@@ -222,133 +200,61 @@ export default function ProfileDetailsScreen() {
             <TouchableOpacity
               style={styles.quickEditButton}
               onPress={() => setShowEditModal(true)}
+              activeOpacity={0.7}
             >
               <Ionicons name="create-outline" size={16} color="#DC2626" />
             </TouchableOpacity>
           </View>
 
           <View style={styles.infoGrid}>
-            {/* Personal Details */}
-            <View style={styles.infoRow}>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>First Name</Text>
-                <Text
-                  style={[
-                    styles.infoValue,
-                    !editedData.firstName && styles.emptyValue,
-                  ]}
-                >
-                  {editedData.firstName || "Not provided"}
-                </Text>
+            {[
+              [
+                { label: "First Name", value: editedData.firstName },
+                { label: "Last Name", value: editedData.lastName },
+              ],
+              [
+                { label: "Email Address", value: editedData.email },
+                { label: "Phone Number", value: editedData.phoneNumber },
+              ],
+              [
+                { label: "Date of Birth", value: editedData.dateOfBirth },
+                { label: "Gender", value: editedData.gender },
+              ],
+              [
+                { label: "Nationality", value: editedData.nationality },
+                { label: "Passport Number", value: editedData.passportNumber },
+              ],
+              [
+                { label: "Passport Expiry", value: editedData.passportExpiry },
+                {},
+              ],
+            ].map((row, idx) => (
+              <View style={styles.infoRow} key={idx}>
+                {row.map((item, jdx) =>
+                  item.label ? (
+                    <View style={styles.infoItem} key={jdx}>
+                      <Text style={styles.infoLabel}>{item.label}</Text>
+                      <Text
+                        style={[
+                          styles.infoValue,
+                          !item.value && styles.emptyValue,
+                        ]}
+                      >
+                        {item.value || "Not provided"}
+                      </Text>
+                    </View>
+                  ) : (
+                    <View style={styles.infoItem} key={jdx} />
+                  )
+                )}
               </View>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Last Name</Text>
-                <Text
-                  style={[
-                    styles.infoValue,
-                    !editedData.lastName && styles.emptyValue,
-                  ]}
-                >
-                  {editedData.lastName || "Not provided"}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.infoRow}>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Email Address</Text>
-                <Text
-                  style={[
-                    styles.infoValue,
-                    !editedData.email && styles.emptyValue,
-                  ]}
-                >
-                  {editedData.email || "Not provided"}
-                </Text>
-              </View>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Phone Number</Text>
-                <Text
-                  style={[
-                    styles.infoValue,
-                    !editedData.phoneNumber && styles.emptyValue,
-                  ]}
-                >
-                  {editedData.phoneNumber || "Not provided"}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.infoRow}>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Date of Birth</Text>
-                <Text
-                  style={[
-                    styles.infoValue,
-                    !editedData.dateOfBirth && styles.emptyValue,
-                  ]}
-                >
-                  {editedData.dateOfBirth || "Not provided"}
-                </Text>
-              </View>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Gender</Text>
-                <Text
-                  style={[
-                    styles.infoValue,
-                    !editedData.gender && styles.emptyValue,
-                  ]}
-                >
-                  {editedData.gender || "Not provided"}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.infoRow}>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Nationality</Text>
-                <Text
-                  style={[
-                    styles.infoValue,
-                    !editedData.nationality && styles.emptyValue,
-                  ]}
-                >
-                  {editedData.nationality || "Not provided"}
-                </Text>
-              </View>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Passport Number</Text>
-                <Text
-                  style={[
-                    styles.infoValue,
-                    !editedData.passportNumber && styles.emptyValue,
-                  ]}
-                >
-                  {editedData.passportNumber || "Not provided"}
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.infoRow}>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Passport Expiry</Text>
-                <Text
-                  style={[
-                    styles.infoValue,
-                    !editedData.passportExpiry && styles.emptyValue,
-                  ]}
-                >
-                  {editedData.passportExpiry || "Not provided"}
-                </Text>
-              </View>
-              <View style={styles.infoItem} />
-            </View>
+            ))}
           </View>
 
-          {/* Edit Button */}
           <TouchableOpacity
             style={styles.editInfoButton}
             onPress={() => setShowEditModal(true)}
+            activeOpacity={0.7}
           >
             <Ionicons name="create-outline" size={20} color="#DC2626" />
             <Text style={styles.editInfoButtonText}>Edit Information</Text>
@@ -356,7 +262,6 @@ export default function ProfileDetailsScreen() {
         </View>
       </ScrollView>
 
-      {/* Edit Modal */}
       {editedData && (
         <EditProfileModal
           visible={showEditModal}
@@ -375,6 +280,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F8F9FA",
   },
+  fixedHeader: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.09,
+    shadowRadius: 8,
+    elevation: 8,
+    marginTop: 28.5,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -384,20 +303,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
     borderBottomColor: "#F0F0F0",
+    height: HEADER_HEIGHT,
   },
   backButton: {
     padding: 8,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: "600",
     color: "#000000",
+    fontFamily: "RedHatDisplay-Bold",
   },
   editButton: {
     padding: 8,
-  },
-  placeholder: {
-    width: 40,
   },
   content: {
     flex: 1,
@@ -420,17 +338,18 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: "#DC2626",
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 2,
   },
   avatarText: {
-    fontSize: 20,
-    fontWeight: "bold",
+    fontSize: 22,
     color: "#FFFFFF",
+    fontFamily: "RedHatDisplay-Bold",
   },
   completionBadge: {
     position: "absolute",
@@ -442,25 +361,29 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     borderWidth: 2,
     borderColor: "#FFFFFF",
+    zIndex: 3,
   },
   completionText: {
     fontSize: 10,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#FFFFFF",
+    fontFamily: "RedHatDisplay-Bold",
   },
   userInfo: {
     flex: 1,
   },
   userName: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     marginBottom: 4,
+    fontFamily: "RedHatDisplay-Bold",
   },
   userEmail: {
     fontSize: 14,
     color: "#666666",
     marginBottom: 8,
+    fontFamily: "RedHatDisplay-Regular",
   },
   completionBar: {
     marginTop: 4,
@@ -479,6 +402,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666666",
     marginTop: 4,
+    fontFamily: "RedHatDisplay-Regular",
   },
   infoCard: {
     backgroundColor: "#FFFFFF",
@@ -500,13 +424,15 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     marginBottom: 8,
+    fontFamily: "RedHatDisplay-Bold",
   },
   sectionSubtitle: {
     fontSize: 14,
     color: "#666666",
+    fontFamily: "RedHatDisplay-Regular",
   },
   quickEditButton: {
     padding: 8,
@@ -519,6 +445,9 @@ const styles = StyleSheet.create({
   infoRow: {
     flexDirection: "row",
     marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F5F5F5",
+    paddingBottom: 10,
   },
   infoItem: {
     flex: 1,
@@ -530,15 +459,18 @@ const styles = StyleSheet.create({
     color: "#666666",
     marginBottom: 4,
     textTransform: "uppercase",
+    fontFamily: "RedHatDisplay-Regular",
   },
   infoValue: {
     fontSize: 16,
     color: "#000000",
     fontWeight: "500",
+    fontFamily: "RedHatDisplay-Bold",
   },
   emptyValue: {
     color: "#999999",
-    fontStyle: "italic",
+    fontFamily: "Inter",
+    fontSize: 14,
   },
   editInfoButton: {
     flexDirection: "row",
@@ -556,5 +488,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#DC2626",
+    fontFamily: "RedHatDisplay-Bold",
   },
 });

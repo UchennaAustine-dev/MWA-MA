@@ -135,16 +135,18 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     textAlign: "center",
     marginBottom: 8,
+    fontFamily: "RedHatDisplay-Bold",
   },
   subtitle: {
     fontSize: 16,
     color: "#666666",
     textAlign: "center",
     marginBottom: 24,
+    fontFamily: "RedHatDisplay-Regular",
   },
   form: {
     gap: 16,
@@ -170,6 +172,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#000000",
     fontWeight: "500",
+    fontFamily: "RedHatDisplay-Regular",
   },
   placeholder: {
     color: "#999999",
@@ -186,11 +189,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#666666",
     marginBottom: 2,
+    fontFamily: "RedHatDisplay-Regular",
   },
   dateText: {
     fontSize: 14,
     color: "#000000",
     fontWeight: "500",
+    fontFamily: "RedHatDisplay-Regular",
   },
   searchButton: {
     backgroundColor: "#DC2626",
@@ -215,6 +220,7 @@ const styles = StyleSheet.create({
   searchButtonText: {
     color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
+    fontFamily: "RedHatDisplay-Bold",
   },
 });

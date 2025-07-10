@@ -11,7 +11,7 @@ export default function BookingHeader({ onBack }: BookingHeaderProps) {
       <TouchableOpacity onPress={onBack} style={styles.backButton}>
         <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
       </TouchableOpacity>
-      <Text style={styles.headerTitle}>Complete Booking</Text>
+      <Text style={styles.headerTitle}>Full Summary</Text>
       <View style={styles.placeholder} />
     </View>
   );
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#FFFFFF",
     fontFamily: "RedHatDisplay-Bold",
   },

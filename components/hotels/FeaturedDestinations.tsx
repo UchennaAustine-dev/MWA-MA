@@ -59,9 +59,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
     marginBottom: 16,
+    fontFamily: "RedHatDisplay-Bold",
   },
   destinationsList: {
     paddingRight: 20,
@@ -97,17 +98,20 @@ const styles = StyleSheet.create({
   },
   destinationName: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "white",
     marginBottom: 4,
+    fontFamily: "RedHatDisplay-Bold",
   },
   destinationCountry: {
     fontSize: 14,
     color: "rgba(255,255,255,0.9)",
     marginBottom: 4,
+    fontFamily: "RedHatDisplay-Regular",
   },
   destinationHotels: {
     fontSize: 12,
     color: "rgba(255,255,255,0.8)",
+    fontFamily: "RedHatDisplay-Regular",
   },
 });
