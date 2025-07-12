@@ -17,7 +17,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/Manwhit iOS icon.png",
+        "foregroundImage": "./assets/images/Manwhit Aroes Android.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,

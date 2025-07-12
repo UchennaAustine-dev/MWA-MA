@@ -368,8 +368,9 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
+    fontFamily: "RedHatDisplay-Bold",
   },
   filterButton: {
     padding: 8,
@@ -403,10 +404,11 @@ const styles = StyleSheet.create({
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
     marginTop: 16,
     marginBottom: 8,
+    fontFamily: "RedHatDisplay-Bold",
   },
   emptyText: {
     fontSize: 14,
@@ -423,7 +425,8 @@ const styles = StyleSheet.create({
   searchAgainButtonText: {
     color: "#fff",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
+    fontFamily: "RedHatDisplay-Bold",
   },
 });
 

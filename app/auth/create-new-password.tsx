@@ -294,7 +294,7 @@
 
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -321,6 +321,7 @@ export default function CreateNewPasswordScreen() {
 
   const router = useRouter();
   const { recoveryCode } = useLocalSearchParams<{ recoveryCode: string }>();
+  const confirmPasswordRef = useRef<TextInput>(null); // Fixed: moved inside component
 
   const handleCreateNewPassword = async () => {
     if (!password || !confirmPassword) {
@@ -366,115 +367,111 @@ export default function CreateNewPasswordScreen() {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <View style={styles.outer}>
-              <View style={styles.container}>
-                <Image
-                  source={require("../../assets/images/Manwhit-Logo.png")}
-                  style={styles.logo}
-                  resizeMode="contain"
-                />
+            <View style={styles.container}>
+              <Image
+                source={require("../../assets/images/Manwhit-Logo.png")}
+                style={styles.logo}
+                resizeMode="contain"
+              />
 
-                <Text style={styles.title}>Create New Password</Text>
-                <Text style={styles.subtitle}>
-                  Please enter your new password below to complete the reset
-                  process.
-                </Text>
+              <Text style={styles.title}>Create New Password</Text>
+              <Text style={styles.subtitle}>
+                Please enter your new password below to complete the reset
+                process.
+              </Text>
 
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>New Password</Text>
-                  <View style={styles.passwordWrapper}>
-                    <TextInput
-                      placeholder="Enter new password"
-                      value={password}
-                      onChangeText={setPassword}
-                      secureTextEntry={!showPassword}
-                      style={styles.passwordInput}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      textContentType="newPassword"
-                      returnKeyType="next"
-                      onSubmitEditing={() =>
-                        confirmPasswordRef.current?.focus()
-                      }
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>New Password</Text>
+                <View style={styles.passwordWrapper}>
+                  <TextInput
+                    placeholder="Enter new password"
+                    value={password}
+                    onChangeText={setPassword}
+                    secureTextEntry={!showPassword}
+                    style={styles.passwordInput}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    textContentType="newPassword"
+                    returnKeyType="next"
+                    onSubmitEditing={() => confirmPasswordRef.current?.focus()}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowPassword((p) => !p)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityLabel={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    accessible
+                  >
+                    <Ionicons
+                      name={showPassword ? "eye-off" : "eye"}
+                      size={22}
+                      color="#777"
                     />
-                    <TouchableOpacity
-                      onPress={() => setShowPassword((p) => !p)}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      accessibilityLabel={
-                        showPassword ? "Hide password" : "Show password"
-                      }
-                      accessible
-                    >
-                      <Ionicons
-                        name={showPassword ? "eye-off" : "eye"}
-                        size={22}
-                        color="#777"
-                      />
-                    </TouchableOpacity>
-                  </View>
+                  </TouchableOpacity>
                 </View>
-
-                <View style={styles.inputGroup}>
-                  <Text style={styles.label}>Confirm Password</Text>
-                  <View style={styles.passwordWrapper}>
-                    <TextInput
-                      ref={confirmPasswordRef}
-                      placeholder="Confirm new password"
-                      value={confirmPassword}
-                      onChangeText={setConfirmPassword}
-                      secureTextEntry={!showConfirmPassword}
-                      style={styles.passwordInput}
-                      autoCapitalize="none"
-                      autoCorrect={false}
-                      textContentType="password"
-                      returnKeyType="done"
-                      onSubmitEditing={handleCreateNewPassword}
-                    />
-                    <TouchableOpacity
-                      onPress={() => setShowConfirmPassword((p) => !p)}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                      accessibilityLabel={
-                        showConfirmPassword ? "Hide password" : "Show password"
-                      }
-                      accessible
-                    >
-                      <Ionicons
-                        name={showConfirmPassword ? "eye-off" : "eye"}
-                        size={22}
-                        color="#777"
-                      />
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={[
-                    styles.button,
-                    (!password ||
-                      !confirmPassword ||
-                      password !== confirmPassword) && { opacity: 0.6 },
-                  ]}
-                  onPress={handleCreateNewPassword}
-                  disabled={
-                    loading ||
-                    !password ||
-                    !confirmPassword ||
-                    password !== confirmPassword
-                  }
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.buttonText}>
-                    {loading ? "Updating..." : "Update Password"}
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => router.replace("/auth/login")}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.linkText}>Back to Login</Text>
-                </TouchableOpacity>
               </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Confirm Password</Text>
+                <View style={styles.passwordWrapper}>
+                  <TextInput
+                    ref={confirmPasswordRef}
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    secureTextEntry={!showConfirmPassword}
+                    style={styles.passwordInput}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    textContentType="password"
+                    returnKeyType="done"
+                    onSubmitEditing={handleCreateNewPassword}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setShowConfirmPassword((p) => !p)}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    accessibilityLabel={
+                      showConfirmPassword ? "Hide password" : "Show password"
+                    }
+                    accessible
+                  >
+                    <Ionicons
+                      name={showConfirmPassword ? "eye-off" : "eye"}
+                      size={22}
+                      color="#777"
+                    />
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  (!password ||
+                    !confirmPassword ||
+                    password !== confirmPassword) && { opacity: 0.6 },
+                ]}
+                onPress={handleCreateNewPassword}
+                disabled={
+                  loading ||
+                  !password ||
+                  !confirmPassword ||
+                  password !== confirmPassword
+                }
+                activeOpacity={0.8}
+              >
+                <Text style={styles.buttonText}>
+                  {loading ? "Updating..." : "Update Password"}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => router.replace("/auth/login")}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.linkText}>Back to Login</Text>
+              </TouchableOpacity>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -483,16 +480,9 @@ export default function CreateNewPasswordScreen() {
   );
 }
 
-const confirmPasswordRef = React.createRef<TextInput>();
-
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
-  flex: {
-    flex: 1,
-  },
+  safeArea: { flex: 1, backgroundColor: "#fff" },
+  flex: { flex: 1 },
   scrollContainer: {
     flexGrow: 1,
     justifyContent: "center",
@@ -500,30 +490,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 24,
   },
-  outer: {
+  container: {
+    width: "100%",
+    maxWidth: 400,
     backgroundColor: "#fff",
     paddingVertical: 32,
     paddingHorizontal: 20,
-    width: "92%",
     alignItems: "center",
     shadowColor: "#000",
     shadowOpacity: 0.08,
     shadowRadius: 10,
     elevation: 3,
   },
-  container: {
-    width: "100%",
-    alignItems: "center",
-  },
-  logo: {
-    width: 90,
-    height: 60,
-    marginBottom: 24,
-    marginTop: 10,
-  },
+  logo: { width: 90, height: 60, marginBottom: 24, marginTop: 10 },
   title: {
     fontSize: 24,
-    fontWeight: "600",
     marginBottom: 12,
     color: "#111",
     textAlign: "center",
@@ -537,13 +518,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontFamily: "Inter",
   },
-  inputGroup: {
-    width: "100%",
-    marginBottom: 16,
-  },
+  inputGroup: { width: "100%", marginBottom: 16 },
   label: {
     fontSize: 14,
-    fontWeight: "500",
+    fontWeight: "600",
     marginBottom: 6,
     color: "#333",
     fontFamily: "RedHatDisplay-Regular",
@@ -575,7 +553,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontSize: 18,
-    fontWeight: "600",
     fontFamily: "RedHatDisplay-Bold",
   },
   linkText: {

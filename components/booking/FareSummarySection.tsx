@@ -60,9 +60,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     marginBottom: 16,
+    fontFamily: "RedHatDisplay-Bold",
   },
   fareContainer: {
     gap: 16,
@@ -93,9 +94,11 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#000000",
     marginBottom: 4,
+    fontFamily: "RedHatDisplay-Bold",
   },
   routeSubtext: {
     fontSize: 14,
     color: "#666666",
+    fontFamily: "RedHatDisplay-Regular",
   },
 });

@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   totalAmount: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#DC2626",
     fontFamily: "RedHatDisplay-Bold",
   },
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   payButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     fontFamily: "RedHatDisplay-Bold",
   },
 });

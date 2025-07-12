@@ -292,8 +292,9 @@ const styles = StyleSheet.create({
   },
   link: {
     color: "#005ce6",
-    fontWeight: "bold",
+    fontWeight: "600",
     marginLeft: 4,
+    fontFamily: "RedHatDisplay-Bold",
   },
 });
 

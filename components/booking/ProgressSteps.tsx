@@ -128,6 +128,7 @@ const styles = StyleSheet.create({
     elevation: 4,
     borderWidth: 1,
     borderColor: "#F1F5F9",
+    marginTop: 20,
   },
   progressContainer: {
     flexDirection: "row",
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
   },
   stepNumber: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     fontFamily: "RedHatDisplay-Bold",
   },
   labelContainer: {

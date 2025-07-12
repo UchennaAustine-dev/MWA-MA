@@ -70,9 +70,13 @@ export default function TravelerInfoSection({
           },
         ];
 
+        // Show "Traveler" for single traveler, "Traveler X" for multiple
+        const sectionTitle =
+          travelersData.length === 1 ? "Traveler" : `Traveler ${index + 1}`;
+
         return (
           <View key={index} style={styles.section}>
-            <Text style={styles.sectionTitle}>Traveler {index + 1}</Text>
+            <Text style={styles.sectionTitle}>{sectionTitle}</Text>
             <View style={styles.travelerContainer}>
               {travelerInfo.map(({ label, value }) => (
                 <View key={label} style={styles.travelerItem}>
@@ -102,9 +106,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     marginBottom: 16,
+    fontFamily: "RedHatDisplay-Bold",
   },
   travelerContainer: {
     gap: 12,
@@ -122,6 +127,7 @@ const styles = StyleSheet.create({
     color: "#666666",
     flex: 1,
     fontWeight: "500",
+    fontFamily: "RedHatDisplay-Regular",
   },
   travelerValue: {
     fontSize: 14,
@@ -129,5 +135,6 @@ const styles = StyleSheet.create({
     color: "#000000",
     flex: 2,
     textAlign: "right",
+    fontFamily: "RedHatDisplay-Bold",
   },
 });

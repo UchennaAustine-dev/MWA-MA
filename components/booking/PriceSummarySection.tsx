@@ -89,9 +89,10 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000000",
     marginBottom: 16,
+    fontFamily: "RedHatDisplay-Bold",
   },
   priceContainer: {
     gap: 12,
@@ -105,11 +106,13 @@ const styles = StyleSheet.create({
   priceLabel: {
     fontSize: 14,
     color: "#666666",
+    fontFamily: "RedHatDisplay-Regular",
   },
   priceValue: {
     fontSize: 14,
     fontWeight: "600",
     color: "#000000",
+    fontFamily: "RedHatDisplay-Bold",
   },
   divider: {
     height: 1,
@@ -129,12 +132,14 @@ const styles = StyleSheet.create({
   },
   totalLabel: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "500",
     color: "#000000",
+    fontFamily: "RedHatDisplay-Regular",
   },
   totalValue: {
     fontSize: 20,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#DC2626",
+    fontFamily: "RedHatDisplay-Bold",
   },
 });

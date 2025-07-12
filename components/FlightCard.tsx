@@ -774,11 +774,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
     color: "#d32f2f",
+    fontFamily: "RedHatDisplay-Bold",
   },
   price: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#d32f2f",
+    fontFamily: "RedHatDisplay-Bold",
   },
   routeContainer: {
     flexDirection: "row",
@@ -790,13 +792,15 @@ const styles = StyleSheet.create({
   },
   time: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
+    fontFamily: "RedHatDisplay-Bold",
   },
   airport: {
     fontSize: 12,
     color: "#666",
     marginTop: 2,
+    fontFamily: "RedHatDisplay-Regular",
   },
   routeLine: {
     flex: 1,
@@ -821,6 +825,7 @@ const styles = StyleSheet.create({
     color: "#666",
     fontWeight: "500",
     paddingHorizontal: 8,
+    fontFamily: "RedHatDisplay-Regular",
   },
   flightInfo: {
     flexDirection: "row",
@@ -854,6 +859,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#d32f2f",
     fontWeight: "500",
+    fontFamily: "RedHatDisplay-Regular",
   },
   bookButton: {
     backgroundColor: "#d32f2f",
@@ -867,7 +873,8 @@ const styles = StyleSheet.create({
   bookButtonText: {
     color: "#fff",
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: "600",
+    fontFamily: "RedHatDisplay-Bold",
   },
   expandedDetails: {
     marginTop: 16,
@@ -880,9 +887,10 @@ const styles = StyleSheet.create({
   },
   itineraryTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
     marginBottom: 8,
+    fontFamily: "RedHatDisplay-Bold",
   },
   segment: {
     backgroundColor: "#f8f9fa",
@@ -905,6 +913,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     color: "#333",
+    fontFamily: "RedHatDisplay-Bold",
   },
   segmentDuration: {
     fontSize: 12,
@@ -919,8 +928,9 @@ const styles = StyleSheet.create({
   },
   segmentTimeText: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#333",
+    fontFamily: "RedHatDisplay-Bold",
   },
   segmentAirport: {
     fontSize: 12,
